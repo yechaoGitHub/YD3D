@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{98CF2594-B373-43DA-95AF-BEF88CBC1CA6}</ProjectGuid>
+    <RootNamespace>YD3D</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>../GC/GC;../DirectXTK12/Src;../DirectXTK12/Inc;.;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\GC\GC\garbage_collection.cpp" />
+    <ClCompile Include="..\GC\GC\gc_ptr_node.cpp" />
+    <ClCompile Include="..\GC\GC\gc_ptr_node_container.cpp" />
+    <ClCompile Include="..\GC\GC\gc_scan_thread.cpp" />
+    <ClCompile Include="..\GC\GC\gc_tref.cpp" />
+    <ClCompile Include="Graph\CommandListAllocator.cpp" />
+    <ClCompile Include="Graph\CommandQueue.cpp" />
+    <ClCompile Include="Graph\DescriptorHeap.cpp" />
+    <ClCompile Include="Graph\DescriptorHeapManager.cpp" />
+    <ClCompile Include="Graph\DxFactory.cpp" />
+    <ClCompile Include="Graph\GraphicTask.cpp" />
+    <ClCompile Include="Graph\SwapChain.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="PipeLine\PipeLine.cpp" />
+    <ClCompile Include="Resource\GraphicDepthStencil.cpp" />
+    <ClCompile Include="Resource\GraphicIndexBuffer.cpp" />
+    <ClCompile Include="Resource\GraphicReadbackBuffer.cpp" />
+    <ClCompile Include="Resource\GraphicRenderTarget.cpp" />
+    <ClCompile Include="Resource\GraphicResource.cpp" />
+    <ClCompile Include="Resource\GraphicTexture.cpp" />
+    <ClCompile Include="Resource\GraphicUploadBuffer.cpp" />
+    <ClCompile Include="Resource\GraphicVertexBuffer.cpp" />
+    <ClCompile Include="Scene\Model.cpp" />
+    <ClCompile Include="Scene\Scene.cpp" />
+    <ClCompile Include="TestWindow.cpp" />
+    <ClCompile Include="Util\YD3D_Util.cpp" />
+    <ClCompile Include="Window\YWindow.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\DirectXTK12\Inc\Audio.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\BufferHelpers.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\CommonStates.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\DDSTextureLoader.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\DescriptorHeap.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\DirectXHelpers.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\EffectPipelineStateDescription.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\Effects.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\GamePad.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\GeometricPrimitive.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\GraphicsMemory.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\Keyboard.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\Model.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\Mouse.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\PostProcess.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\PrimitiveBatch.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\RenderTargetState.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\ResourceUploadBatch.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\ScreenGrab.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\SimpleMath.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\SpriteBatch.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\SpriteFont.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\VertexTypes.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\WICTextureLoader.h" />
+    <ClInclude Include="..\DirectXTK12\Inc\XboxDDSTextureLoader.h" />
+    <ClInclude Include="..\GC\GC\garbage_collection.h" />
+    <ClInclude Include="..\GC\GC\gc_allocator.hpp" />
+    <ClInclude Include="..\GC\GC\gc_ptr.hpp" />
+    <ClInclude Include="..\GC\GC\gc_ptr_node.h" />
+    <ClInclude Include="..\GC\GC\gc_ptr_node_container.h" />
+    <ClInclude Include="..\GC\GC\gc_scan_thread.h" />
+    <ClInclude Include="..\GC\GC\gc_tref.h" />
+    <ClInclude Include="Graph\CommandListAllocator.h" />
+    <ClInclude Include="Graph\CommandQueue.h" />
+    <ClInclude Include="Graph\DescriptorHeap.h" />
+    <ClInclude Include="Graph\DescriptorHeapManager.h" />
+    <ClInclude Include="Graph\DxFactory.h" />
+    <ClInclude Include="Graph\GraphicTask.h" />
+    <ClInclude Include="Graph\SwapChain.h" />
+    <ClInclude Include="PipeLine\PipeLine.h" />
+    <ClInclude Include="Resource\GraphicConstBuffer.hpp" />
+    <ClInclude Include="Resource\GraphicDepthStencil.h" />
+    <ClInclude Include="Resource\GraphicIndexBuffer.h" />
+    <ClInclude Include="Resource\GraphicReadbackBuffer.h" />
+    <ClInclude Include="Resource\GraphicRenderTarget.h" />
+    <ClInclude Include="Resource\GraphicResource.h" />
+    <ClInclude Include="Resource\GraphicResourceHeader.h" />
+    <ClInclude Include="Resource\GraphicTexture.h" />
+    <ClInclude Include="Resource\GraphicUploadBuffer.h" />
+    <ClInclude Include="Resource\GraphicVertexBuffer.h" />
+    <ClInclude Include="Scene\Model.h" />
+    <ClInclude Include="Scene\Scene.h" />
+    <ClInclude Include="TestWindow.h" />
+    <ClInclude Include="Util\wait_free_queue.hpp" />
+    <ClInclude Include="Util\YD3D_Define.h" />
+    <ClInclude Include="Util\YD3D_Util.h" />
+    <ClInclude Include="Util\ystate.hpp" />
+    <ClInclude Include="Util\ythread.hpp" />
+    <ClInclude Include="Window\YWindow.h" />
+    <ClInclude Include="YD3D_Header.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\DirectXTK12\Inc\SimpleMath.inl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
