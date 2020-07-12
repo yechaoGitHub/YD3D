@@ -74,6 +74,16 @@ namespace YD3D
         return (byteSize + 255) & ~255;
     }
 
+    inline bool IsNullCpuDescriptorHandle(const D3D12_CPU_DESCRIPTOR_HANDLE &cpuHandle)
+    {
+        return cpuHandle.ptr != 0;
+    }
+
+    inline bool IsNullGpuDescriptorHandle(const D3D12_CPU_DESCRIPTOR_HANDLE& gpuHandle)
+    {
+        return gpuHandle.ptr != 0;
+    }
+
 #ifndef ThrowIfFailed
 #define ThrowIfFailed(x)                                              \
 {                                                                     \

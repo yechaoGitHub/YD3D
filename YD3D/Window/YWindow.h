@@ -10,8 +10,10 @@ namespace YD3D
 		virtual ~YWindow();
 
 		virtual bool Create(uint32_t width, uint32_t height, const std::wstring &caption = L"");
-		uint32_t Run();
+		virtual uint32_t Run();
 		HWND GetHandle();
+		uint32_t GetWidth();
+		uint32_t GetHeight();
 
 	protected:
 		virtual LRESULT MainWndProc(UINT msg, WPARAM wParam, LPARAM lParam);

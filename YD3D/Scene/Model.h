@@ -3,9 +3,11 @@
 
 namespace YD3D
 {
-	class Model : public enable_gc_ptr_form_raw
+	class Model : public virtual enable_gc_ptr_form_raw
 	{
 	public:
+		enum { need_clear_up_gc_ptr = 0 };
+
 		Model();
 		~Model();
 

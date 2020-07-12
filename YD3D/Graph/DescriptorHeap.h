@@ -4,10 +4,12 @@
 
 namespace YD3D
 {
-	class DescriptorHeap 
+	class DescriptorHeap : public enable_gc_ptr_form_raw
 	{
 		friend class DescriptorHeapManager;
 	public:
+		enum { need_clear_up_gc_ptr = 1 };
+
 		DescriptorHeap();
 		~DescriptorHeap();
 
@@ -19,20 +21,23 @@ namespace YD3D
 		ID3D12Device* GetDevice();
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle(uint32_t Index = 0);
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle(uint32_t Index = 0);
-		D3D12_CPU_DESCRIPTOR_HANDLE	GetResourceCpuHandle(const GraphicResource& res);
-		D3D12_GPU_DESCRIPTOR_HANDLE GetResourceGpuHandle(const GraphicResource& res);
+		D3D12_CPU_DESCRIPTOR_HANDLE	GetResourceCpuHandle(GraphicResource* res);
+		D3D12_GPU_DESCRIPTOR_HANDLE GetResourceGpuHandle(GraphicResource* res);
 
-		bool RemoveView(const GraphicResource& res);
+		bool RemoveView(GraphicResource *res);
 		GraphicResource* GetSlot(uint32_t index);
 		bool IsOccupied(uint32_t start, uint32_t count, bool* isOccupied);
 		bool FindFreeSlot(uint32_t count, uint32_t* slotIndex);
+
+		void clear_up_gc_ptr();
 
 	private:
 		ID3D12Device*											mDevice;
 		ID3D12DescriptorHeap*									mDescriptorHeap;
 		uint32_t												mDescriptorCount;
 		uint32_t												mIncreasement;
-		std::unordered_map<uint32_t, GraphicResource*>			mMapResource;
+		std::unordered_map<uint32_t, GraphicResource*>			mMapSlot;
+		std::unordered_map<GraphicResource*, uint32_t>			mMapResource;
 
 		void SetSlot(uint32_t index, GraphicResource* res);
 	};

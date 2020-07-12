@@ -11,7 +11,7 @@ class wait_free_queue
 {
 	enum class wait_for_state : uint32_t { free, vaild, copying };
 public:
-	wait_free_queue(uint64_t capacity) :
+	wait_free_queue(uint64_t capacity = 8) :
 		m_queue(nullptr),
 		m_states(nullptr),
 		m_enqueue_count(0),

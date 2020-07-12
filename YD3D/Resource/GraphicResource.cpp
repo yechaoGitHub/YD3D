@@ -1,4 +1,5 @@
 #include "GraphicResource.h"
+#include "Graph/DescriptorHeapManager.h"
 
 namespace YD3D
 {
@@ -9,6 +10,11 @@ namespace YD3D
 
 	GraphicResource::~GraphicResource()
 	{
+		if (mResource) 
+		{
+			Release();
+			DescriptorHeapManager::GobalDescriptorHeapManager()->RemoveAllView(this);
+		}
 	}
 
 	bool GraphicResource::Create(ID3D12Device* device, D3D12_HEAP_PROPERTIES* heapProperty, D3D12_HEAP_FLAGS flag, D3D12_RESOURCE_DESC* desc, D3D12_RESOURCE_STATES state, D3D12_CLEAR_VALUE* clearValue)

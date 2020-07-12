@@ -153,7 +153,7 @@
     <ClCompile Include="Graph\GraphicTask.cpp" />
     <ClCompile Include="Graph\SwapChain.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="PipeLine\PipeLine.cpp" />
+    <ClCompile Include="PipeLine\ResourcePackage.cpp" />
     <ClCompile Include="Resource\GraphicDepthStencil.cpp" />
     <ClCompile Include="Resource\GraphicIndexBuffer.cpp" />
     <ClCompile Include="Resource\GraphicReadbackBuffer.cpp" />
@@ -164,6 +164,7 @@
     <ClCompile Include="Resource\GraphicVertexBuffer.cpp" />
     <ClCompile Include="Scene\Model.cpp" />
     <ClCompile Include="Scene\Scene.cpp" />
+    <ClCompile Include="TestPipeLine.cpp" />
     <ClCompile Include="TestWindow.cpp" />
     <ClCompile Include="Util\YD3D_Util.cpp" />
     <ClCompile Include="Window\YWindow.cpp" />
@@ -208,7 +209,8 @@
     <ClInclude Include="Graph\DxFactory.h" />
     <ClInclude Include="Graph\GraphicTask.h" />
     <ClInclude Include="Graph\SwapChain.h" />
-    <ClInclude Include="PipeLine\PipeLine.h" />
+    <ClInclude Include="PipeLine\PipeLineTemplate.hpp" />
+    <ClInclude Include="PipeLine\ResourcePackage.h" />
     <ClInclude Include="Resource\GraphicConstBuffer.hpp" />
     <ClInclude Include="Resource\GraphicDepthStencil.h" />
     <ClInclude Include="Resource\GraphicIndexBuffer.h" />
@@ -221,6 +223,7 @@
     <ClInclude Include="Resource\GraphicVertexBuffer.h" />
     <ClInclude Include="Scene\Model.h" />
     <ClInclude Include="Scene\Scene.h" />
+    <ClInclude Include="TestPipeLine.h" />
     <ClInclude Include="TestWindow.h" />
     <ClInclude Include="Util\wait_free_queue.hpp" />
     <ClInclude Include="Util\YD3D_Define.h" />

@@ -22,8 +22,8 @@ namespace YD3D
 		assert(mRenderCommandAllocator.Create(mDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, 10));
 		assert(mComputeCommandQueue.Create(mDevice, D3D12_COMMAND_LIST_TYPE_COMPUTE, D3D12_COMMAND_QUEUE_FLAG_NONE));
 		assert(mComputeCommandAllocator.Create(mDevice, D3D12_COMMAND_LIST_TYPE_COMPUTE, 10));
-		assert(mSwapChainCommandQueue.Create(mDevice, D3D12_COMMAND_LIST_TYPE_COMPUTE, D3D12_COMMAND_QUEUE_FLAG_NONE));
-		assert(mSwapChainCommandAllocator.Create(mDevice, D3D12_COMMAND_LIST_TYPE_COMPUTE, 10));
+		assert(mSwapChainCommandQueue.Create(mDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_QUEUE_FLAG_NONE));
+		assert(mSwapChainCommandAllocator.Create(mDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, 10));
 
 		return true;
 	}
@@ -40,10 +40,10 @@ namespace YD3D
 		param.CommandLists.push_back(commandList);
 		param.HasCallback = false;
 
-		return GetCommandQueue(type).PostCommandList(1, &commandList, fenceValue, std::bind(&GraphicTask::GraphicTaskDefaultCallback, this, std::move(param)));
+		return GetCommandQueue(type).PostCommandList(1, &commandList, fenceValue, std::bind(&GraphicTask::GraphicTaskDefaultCallback, this, std::move(param), std::placeholders::_1, std::placeholders::_2));
 	}
 
-	bool GraphicTask::PostTask(ECommandQueueType type, GraphicTaskFunction&& task, uint64_t* fenceValue, GraphicTaskCallBackFunction&& callback)
+	bool GraphicTask::PostTask(ECommandQueueType type, GraphicTaskFunction&& task, uint64_t* fenceValue, GraphicTaskCallbackFunction&& callback)
 	{
 		TaskCallbackParam param;
 		ID3D12GraphicsCommandList* commandList = GetCommandListAllocator(type).Allocate();
@@ -56,7 +56,7 @@ namespace YD3D
 		param.HasCallback = true;
 		param.Callback = std::move(callback);
 
-		return GetCommandQueue(type).PostCommandList(1, &commandList, fenceValue, std::bind(&GraphicTask::GraphicTaskDefaultCallback, this, std::move(param)));
+		return GetCommandQueue(type).PostCommandList(1, &commandList, fenceValue, std::bind(&GraphicTask::GraphicTaskDefaultCallback, this, std::move(param), std::placeholders::_1, std::placeholders::_2));
 	}
 
 	bool GraphicTask::PostTask(ECommandQueueType type, std::vector<GraphicTaskFunction>&& vecTask, uint64_t* fenceValue)
@@ -74,10 +74,10 @@ namespace YD3D
 			param.CommandLists.push_back(commandList);
 		}
 
-		return GetCommandQueue(type).PostCommandList(param.CommandLists.size(), param.CommandLists.data(), fenceValue, std::bind(&GraphicTask::GraphicTaskDefaultCallback, this, std::move(param)));;
+		return GetCommandQueue(type).PostCommandList(param.CommandLists.size(), param.CommandLists.data(), fenceValue, std::bind(&GraphicTask::GraphicTaskDefaultCallback, this, std::move(param), std::placeholders::_1, std::placeholders::_2));;
 	}
 
-	bool GraphicTask::PostTask(ECommandQueueType type, std::vector<GraphicTaskFunction>&& vecTask, uint64_t* fenceValue, GraphicTaskCallBackFunction&& callback)
+	bool GraphicTask::PostTask(ECommandQueueType type, std::vector<GraphicTaskFunction>&& vecTask, uint64_t* fenceValue, GraphicTaskCallbackFunction&& callback)
 	{
 		TaskCallbackParam param;
 		param.Type = SwitchToDX12Type(type);
@@ -92,7 +92,7 @@ namespace YD3D
 			param.CommandLists.push_back(commandList);
 		}
 
-		return GetCommandQueue(type).PostCommandList(param.CommandLists.size(), param.CommandLists.data(), fenceValue, std::bind(&GraphicTask::GraphicTaskDefaultCallback, this, std::move(param)));
+		return GetCommandQueue(type).PostCommandList(param.CommandLists.size(), param.CommandLists.data(), fenceValue, std::bind(&GraphicTask::GraphicTaskDefaultCallback, this, std::move(param), std::placeholders::_1, std::placeholders::_2));
 	}
 
 	CommandQueue& GraphicTask::GetCommandQueue(ECommandQueueType type)
@@ -138,7 +138,7 @@ namespace YD3D
 		return _GLOBAL_GRAPHIC_TASK_->PostTask(type, std::move(task), fenceValue);
 	}
 
-	bool GraphicTask::PostGraphicTask(ECommandQueueType type, GraphicTaskFunction&& task, uint64_t* fenceValue, GraphicTaskCallBackFunction&& callback)
+	bool GraphicTask::PostGraphicTask(ECommandQueueType type, GraphicTaskFunction&& task, uint64_t* fenceValue, GraphicTaskCallbackFunction&& callback)
 	{
 		return _GLOBAL_GRAPHIC_TASK_->PostTask(type, std::move(task), fenceValue, std::move(callback));
 	}
@@ -148,7 +148,7 @@ namespace YD3D
 		return _GLOBAL_GRAPHIC_TASK_->PostTask(type, std::move(task), fenceValue);
 	}
 
-	bool GraphicTask::PostGraphicTask(ECommandQueueType type, std::vector<GraphicTaskFunction>&& task, uint64_t* fenceValue, GraphicTaskCallBackFunction&& callback)
+	bool GraphicTask::PostGraphicTask(ECommandQueueType type, std::vector<GraphicTaskFunction>&& task, uint64_t* fenceValue, GraphicTaskCallbackFunction&& callback)
 	{
 		return _GLOBAL_GRAPHIC_TASK_->PostTask(type, std::move(task), fenceValue, std::move(callback));
 	}
@@ -208,12 +208,12 @@ namespace YD3D
 		return D3D12_COMMAND_LIST_TYPE_DIRECT;
 	}
 
-	void GraphicTask::GraphicTaskDefaultCallback(TaskCallbackParam& param)
+	void GraphicTask::GraphicTaskDefaultCallback(TaskCallbackParam& param, D3D12_COMMAND_LIST_TYPE type, uint64_t fence)
 	{
 		FreeCommandList(param.Type, param.CommandLists);
 		if (param.HasCallback) 
 		{
-			param.Callback();
+			param.Callback(type, fence);
 		}
 	}
 

@@ -5,14 +5,17 @@
 #include <assert.h>
 #include <d3dx12.h>
 #include <dxgi1_5.h>
+#include <DirectXColors.h>
 
 #include <stdint.h>
 #include <string>
 #include <vector>
 #include <array>
+#include <set>
 #include <unordered_map>
 #include <atomic>
 #include <mutex>
+#include <type_traits>
 
 #include "garbage_collection.h"
 #include "gc_ptr.hpp"

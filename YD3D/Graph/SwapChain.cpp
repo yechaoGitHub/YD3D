@@ -11,7 +11,7 @@ namespace YD3D
 	{
 	}
 
-	bool SwapChain::Create(IDXGIFactory5* factory, ID3D12Device* device, HWND winHandle, UINT backBufferCount, UINT width, UINT height)
+	bool SwapChain::Create(IDXGIFactory5* factory, ID3D12Device* device, HWND winHandle, uint32_t width, uint32_t height)
 	{
 		mFactory = factory;
 		mDevice = device;
@@ -34,7 +34,8 @@ namespace YD3D
 
 		for (UINT i = 0; i < 2; i++)
 		{
-			ThrowIfFailed(mSwapChain->GetBuffer(i, IID_PPV_ARGS(mRT[i].GetResourceAddressOf())));
+			mRT[i].assign(new GraphicRenderTarget);
+			ThrowIfFailed(mSwapChain->GetBuffer(i, IID_PPV_ARGS(mRT[i]->GetResourceAddressOf())));
 		}
 
 		return true;
@@ -46,13 +47,23 @@ namespace YD3D
 		return true;
 	}
 
+	uint32_t SwapChain::GetBackBufferCount()
+	{
+		return 2;
+	}
+
+	GraphicRenderTarget* SwapChain::GetBackBuffer(uint32_t index)
+	{
+		return mRT[index].get_raw_ptr();
+	}
+
 	uint32_t SwapChain::GetCurBackBufferIndex()
 	{
 		return mSwapChain->GetCurrentBackBufferIndex();
 	}
 
-	GraphicRenderTarget& SwapChain::GetCurBackBuffer()
+	GraphicRenderTarget* SwapChain::GetCurBackBuffer()
 	{
-		return mRT[mSwapChain->GetCurrentBackBufferIndex()];
+		return mRT[mSwapChain->GetCurrentBackBufferIndex()].get_raw_ptr();
 	}
 };

@@ -80,6 +80,16 @@ namespace YD3D
 		return mHwnd;
 	}
 
+	uint32_t YWindow::GetWidth()
+	{
+		return mWidth;
+	}
+
+	uint32_t YWindow::GetHeight()
+	{
+		return mHeight;
+	}
+
 	LRESULT YWindow::MainWndProc(UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		//switch (msg)

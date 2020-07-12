@@ -4,6 +4,7 @@ namespace YD3D
 {
 	CommandQueue::CommandQueue():
 		mDevice(nullptr),
+		mType(D3D12_COMMAND_LIST_TYPE_DIRECT),
 		mFenceValue(0),
 		mCommandCount(0),
 		mCallbackFence(0),
@@ -19,6 +20,7 @@ namespace YD3D
 	bool CommandQueue::Create(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE commandQueueType, D3D12_COMMAND_QUEUE_FLAGS commandQueueFlag)
 	{
 		mDevice = device;
+		mType = commandQueueType;
 
 		D3D12_COMMAND_QUEUE_DESC desc = {};
 		desc.Type = commandQueueType;
@@ -49,7 +51,7 @@ namespace YD3D
 		return true;
 	}
 
-	bool CommandQueue::PostCommandList(uint32_t count, ID3D12GraphicsCommandList** commandList, uint64_t* fenceValue, std::function<void(void)>&& completionCallback)
+	bool CommandQueue::PostCommandList(uint32_t count, ID3D12GraphicsCommandList** commandList, uint64_t* fenceValue, CommandQueueCallbackFunction&& completionCallback)
 	{
 		uint64_t nxtFenceValue = mCmdQueue.enqueue_range(commandList, count);
 		if (fenceValue)
@@ -102,7 +104,7 @@ namespace YD3D
 		if (mCompletionQueue.dequeue(callback)) 
 		{
 			WaitForCompletion(callback.fenceValue, false);
-			callback.completionCallback();
+			callback.completionCallback(mType, callback.fenceValue);
 			mCallbackFence = callback.fenceValue;
 		}
 		else 

@@ -5,8 +5,8 @@ namespace YD3D
 {
 	struct CompletionCallback
 	{
-		uint64_t					fenceValue;
-		std::function<void(void)>	completionCallback;
+		uint64_t						fenceValue;
+		CommandQueueCallbackFunction	completionCallback;
 	};
 
 	class CommandQueue 
@@ -19,7 +19,7 @@ namespace YD3D
 
 		ID3D12CommandQueue* Queue();
 		bool PostCommandList(uint32_t count, ID3D12GraphicsCommandList** commandList, uint64_t* fenceValue);
-		bool PostCommandList(uint32_t count, ID3D12GraphicsCommandList** commandList, uint64_t* fenceValue, std::function<void(void)>&& completionCallback);
+		bool PostCommandList(uint32_t count, ID3D12GraphicsCommandList** commandList, uint64_t* fenceValue, CommandQueueCallbackFunction&& completionCallback);
 		bool WaitForCompletion(uint64_t fenceValue, bool waitForCallback = true);
 
 	private:
@@ -28,6 +28,7 @@ namespace YD3D
 		bool ExcuteQueue(ID3D12CommandList** commandList, uint32_t count);
 
 		ID3D12Device*									mDevice;
+		D3D12_COMMAND_LIST_TYPE							mType;
 		std::atomic<uint64_t>							mFenceValue;
 		std::atomic<uint64_t>							mCommandCount;
 		std::atomic<uint64_t>							mCallbackFence;

@@ -29,6 +29,11 @@ namespace YD3D
 			return static_cast<T>(m_state);
 		}
 
+		void set_state(const T state) 
+		{
+			m_state = state;
+		}
+
 		bool is_state(const T state)
 		{
 			return m_state == state;

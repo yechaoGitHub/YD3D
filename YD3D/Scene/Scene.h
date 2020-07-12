@@ -12,6 +12,8 @@ namespace YD3D
 	class Scene : public enable_gc_ptr_form_raw
 	{
 	public:
+		enum { need_clear_up_gc_ptr = 0 };
+
 		Scene();
 		~Scene();
 

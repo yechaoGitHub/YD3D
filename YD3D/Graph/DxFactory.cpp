@@ -23,7 +23,7 @@ namespace YD3D
 		}
 #endif
 		ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(&mFactory)));
-		ThrowIfFailed(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&mDevice)));
+		ThrowIfFailed(D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&mDevice)));
 
 		return true;
 	}

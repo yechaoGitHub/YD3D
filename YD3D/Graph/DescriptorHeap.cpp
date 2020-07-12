@@ -2,9 +2,6 @@
 
 namespace YD3D
 {
-	
-
-
 	DescriptorHeap::DescriptorHeap()
 	{
 	}
@@ -84,60 +81,50 @@ namespace YD3D
 		return handle;
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::GetResourceCpuHandle(const GraphicResource& res)
+	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::GetResourceCpuHandle(GraphicResource *res)
 	{
 		assert(mDescriptorHeap);
 
-		for (auto& pair : mMapResource)
+		if (mMapResource.find(res) != mMapResource.end())
 		{
-			auto& index = pair.first;
-			auto& bindRes = pair.second;
-			if (res.Resource() == bindRes->Resource())
-			{
-				return GetCpuHandle(index);
-			}
+			return GetCpuHandle(mMapResource[res]);
 		}
-
-		return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
+		else
+		{
+			return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
+		}
 	}
 
-	D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetResourceGpuHandle(const GraphicResource& res)
+	D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetResourceGpuHandle(GraphicResource *res)
 	{
 		assert(mDescriptorHeap);
 
-		for (auto& pair : mMapResource)
+		if (mMapResource.find(res) != mMapResource.end())
 		{
-			auto& index = pair.first;
-			auto& bindRes = pair.second;
-			if (res.Resource() == bindRes->Resource())
-			{
-				return GetGpuHandle(index);
-			}
+			return GetGpuHandle(mMapResource[res]);
 		}
-
-		return D3D12_GPU_DESCRIPTOR_HANDLE{ 0 };
+		else
+		{
+			return D3D12_GPU_DESCRIPTOR_HANDLE{ 0 };
+		}
 	}
 
-	bool DescriptorHeap::RemoveView(const GraphicResource& res)
+	bool DescriptorHeap::RemoveView(GraphicResource *res)
 	{
 		assert(mDescriptorHeap);
 
-		std::vector<uint32_t> removeKeys;
-		for (auto& pair : mMapResource)
+		if (mMapResource.find(res) != mMapResource.end()) 
 		{
-			auto& compareRes = pair.second;
-			if (res.Resource() == compareRes->Resource())
-			{
-				removeKeys.push_back(pair.first);
-			}
-		}
+			uint32_t index = mMapResource[res];
+			mMapResource.erase(res);
+			mMapSlot.erase(index);
 
-		for (auto& key : removeKeys)
+			return true;
+		}
+		else 
 		{
-			mMapResource.erase(key);
+			return false;
 		}
-
-		return !removeKeys.empty();
 	}
 
 	GraphicResource* DescriptorHeap::GetSlot(uint32_t index)
@@ -147,7 +134,7 @@ namespace YD3D
 		bool occupied(false);
 		if (IsOccupied(index, 1, &occupied) && occupied)
 		{
-			return mMapResource[index];
+			return mMapSlot[index];
 		}
 
 		return nullptr;
@@ -165,7 +152,7 @@ namespace YD3D
 				return false;
 			}
 
-			if (mMapResource.find(pos) != mMapResource.end())
+			if (mMapSlot.find(pos) != mMapSlot.end())
 			{
 				*isOccupied = true;
 			}
@@ -181,7 +168,7 @@ namespace YD3D
 
 		UINT FreeSlot(0);
 		UINT curSlot(0);
-		for (auto& pair : mMapResource)
+		for (auto& pair : mMapSlot)
 		{
 			UINT interval = pair.first - curSlot;
 			if (interval >= count)
@@ -208,8 +195,15 @@ namespace YD3D
 		return false;
 	}
 
+	void DescriptorHeap::clear_up_gc_ptr()
+	{
+		mMapSlot.clear();
+		mMapResource.clear();
+	}
+
 	void DescriptorHeap::SetSlot(uint32_t index, GraphicResource* res)
 	{
-		mMapResource[index] = res;
+		mMapSlot[index] = res;
+		mMapResource[res] = index; 
 	}
 };
