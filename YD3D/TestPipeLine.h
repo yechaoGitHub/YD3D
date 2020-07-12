@@ -9,7 +9,7 @@ public:
 	~TestPipeLine();
 
 protected:
-	bool Draw(gc_ptr<YD3D::ResourcePackage>& package) override;
-	bool PopulateCommandList(gc_ptr<YD3D::ResourcePackage> package, ID3D12GraphicsCommandList* commandlist) override;
+	bool Draw(YD3D::ResourcePackage *package) override;
+	bool PopulateCommandList(YD3D::ResourcePackage *package, ID3D12GraphicsCommandList* commandlist) override;
 };
 

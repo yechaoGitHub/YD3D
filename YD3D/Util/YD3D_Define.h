@@ -13,3 +13,4 @@ typedef std::function<bool(ID3D12GraphicsCommandList*)> GraphicTaskFunction;
 
 enum class ECommandQueueType { ERENDER, ECOPY, ECOMPUTE, ESWAP_CHAIN  };
 enum class EResourcePackageState { EINIT, EPOSTED, ERENDERING, ERENDERED };
+enum class ESceneState { CLEAR, UPLOADING, DIRTY };

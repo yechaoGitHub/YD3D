@@ -6,7 +6,7 @@ namespace YD3D
 {
 	Scene::Scene():
 		mDevice(nullptr),
-		mState(CLEAR),
+		mState(ESceneState::CLEAR),
 		mVertexBufferLength(0),
 		mIndexBufferLength(0),
 		mModels(get_gc_allocator<gc_ptr<Model>>())
@@ -27,9 +27,9 @@ namespace YD3D
 		return true;
 	}
 
-	bool Scene::AddModel(const gc_ptr<Model>& model)
+	bool Scene::AddModel(const Model *model)
 	{
-		mModels.push_back(model);
+		mModels.push_back(get_gc_ptr_from_raw(model));
 
 		mVertexBufferLength += model->VertexSize();
 		mIndexBufferLength += model->IndexSize();
@@ -69,6 +69,13 @@ namespace YD3D
 			uint64_t curIndexSize = model->IndexSize();
 			mUploadBuffer.CopyData(indexOffset + mVertexBufferLength, reinterpret_cast<const BYTE*>(model->Indices()), curIndexSize);
 			indexOffset += curIndexSize;
+
+			DrawParam drawParam;
+			drawParam.Model = model.get_raw_ptr();
+			drawParam.IndexCountPerInstance = model->IndexCount();
+			drawParam.BaseVertexLocation = vertexOffset;
+			drawParam.StartIndexLocation = indexOffset;
+			mDrawParam.insert(std::make_pair(drawParam.Model, drawParam));
 		}
 		
 		uint64_t fenceValue = PostUploadTask();
@@ -76,6 +83,21 @@ namespace YD3D
 		{
 			GraphicTask::WaitForGraphicTaskCompletion(ECommandQueueType::ECOPY, fenceValue, true);
 		}
+	}
+
+	const D3D12_INDEX_BUFFER_VIEW& Scene::IndexView()
+	{
+		return mIndexBuffer.IndexView();
+	}
+
+	const D3D12_VERTEX_BUFFER_VIEW& Scene::VertexView()
+	{
+		return mVertexBuffer.VertexView();
+	}
+
+	const MapDrawParam& Scene::GetDrawParam()
+	{
+		return mDrawParam;
 	}
 
 	bool Scene::UploadTask(ID3D12GraphicsCommandList* commandList)

@@ -7,7 +7,26 @@
 
 namespace YD3D
 {
-	enum ESceneState { CLEAR, UPLOADING, DIRTY };
+	struct DrawParam 
+	{
+		DrawParam() :
+			Model(nullptr),
+			IndexCountPerInstance(0),
+			StartIndexLocation(0),
+			BaseVertexLocation(0),
+			StartInstanceLocation(0)
+		{
+		}
+
+		Model*		Model;
+		uint32_t	IndexCountPerInstance;
+		uint32_t	StartIndexLocation;	
+		int32_t		BaseVertexLocation;
+		uint32_t	StartInstanceLocation;
+	};
+
+	typedef std::vector<gc_ptr<Model>, gc_allocator<gc_ptr<Model>>> VecModel;
+	typedef std::unordered_map<Model*, DrawParam>					MapDrawParam;
 
 	class Scene : public enable_gc_ptr_form_raw
 	{
@@ -18,9 +37,13 @@ namespace YD3D
 		~Scene();
 
 		bool Create(ID3D12Device *device);
-		bool AddModel(const gc_ptr<Model>& model);
+		bool AddModel(const Model *model);
 		void UpdateGraphicResource(bool wait = false);
 
+		const D3D12_INDEX_BUFFER_VIEW& IndexView();
+		const D3D12_VERTEX_BUFFER_VIEW& VertexView();
+		const MapDrawParam& GetDrawParam();
+		
 	private:
 		ID3D12Device*				mDevice;
 		ystate<ESceneState>			mState;
@@ -29,7 +52,8 @@ namespace YD3D
 		GraphicVertexBuffer			mVertexBuffer;
 		GraphicIndexBuffer			mIndexBuffer;
 		GraphicUploadBuffer			mUploadBuffer;
-		std::vector<gc_ptr<Model>, gc_allocator<gc_ptr<Model>>> mModels;
+		VecModel					mModels;
+		MapDrawParam				mDrawParam;
 
 		bool UploadTask(ID3D12GraphicsCommandList *commandList);
 		uint64_t PostUploadTask();

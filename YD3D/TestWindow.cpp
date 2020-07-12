@@ -131,7 +131,7 @@ void TestWindow::InitScence()
 
 	model->Create(vecVertex, vecIndex);
 	mScene->Create(_D3D12DEVICE_);
-	mScene->AddModel(model);
+	mScene->AddModel(model.get_raw_ptr());
 	mScene->UpdateGraphicResource(true);
 }
 
@@ -150,6 +150,7 @@ void TestWindow::InitResource()
 	mPackage->DS = mDs;
 	mPackage->State.set_state(EResourcePackageState::EINIT);
 
+	mPipeLine.SetScene(mScene.get_raw_ptr());
 	mPipeLine.PostResourcePackage(mPackage.get_raw_ptr());
 }
 

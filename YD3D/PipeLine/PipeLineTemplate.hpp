@@ -33,9 +33,9 @@ namespace YD3D
 
 		}
 
-		virtual bool SetScene(gc_ptr<Scene> &scene)
+		virtual bool SetScene(Scene *scene)
 		{
-			mScene = scene;
+			mScene = get_gc_ptr_from_raw(scene);
 			return true;
 		}
 
@@ -59,12 +59,12 @@ namespace YD3D
 			return true;
 		}
 
-		virtual bool Draw(gc_ptr<TResourcePackage> &package)
+		virtual bool Draw(TResourcePackage *package)
 		{
 			return false;
 		}
 
-		virtual bool PopulateCommandList(gc_ptr<TResourcePackage> package, ID3D12GraphicsCommandList *commandlist)
+		virtual bool PopulateCommandList(TResourcePackage *package, ID3D12GraphicsCommandList *commandlist)
 		{
 			return false;
 		}
@@ -83,7 +83,7 @@ namespace YD3D
 			gc_ptr<TResourcePackage> package;
 			if (mPackageQueue.dequeue(package))
 			{
-				Draw(package);
+				Draw(package.get_raw_ptr());
 			}
 		}
 
@@ -93,10 +93,11 @@ namespace YD3D
 			mScissorRect = {0, 0, static_cast<LONG>(mInitParam.outputWidth), static_cast<LONG>(mInitParam.outputHeight) };
 		}
 
-		virtual bool PostToCommandQueue(gc_ptr<TResourcePackage> &package)
+		virtual bool PostToCommandQueue(TResourcePackage *package)
 		{
+			gc_ptr<TResourcePackage> gcPackage = get_gc_ptr_from_raw(package);
 			GraphicTaskFunction &&task = std::bind(&PipeLineTemplate::PopulateCommandList, this, package, std::placeholders::_1);
-			GraphicTaskCallbackFunction &&packageCallback = std::bind(&TResourcePackage::ResourcePackageCallBack, package, std::placeholders::_1, std::placeholders::_2);
+			GraphicTaskCallbackFunction &&packageCallback = std::bind(&TResourcePackage::ResourcePackageCallBack, gcPackage, std::placeholders::_1, std::placeholders::_2);
 			GraphicTask::PostGraphicTask(ECommandQueueType::ESWAP_CHAIN, std::move(task), nullptr, std::move(packageCallback));
 			
 			return true;
