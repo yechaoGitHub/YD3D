@@ -4,6 +4,8 @@
 #include "Resource/GraphicVertexBuffer.h"
 #include "Resource/GraphicIndexBuffer.h"
 #include "Resource/GraphicUploadBuffer.h"
+#include "Resource/GraphicConstBuffer.hpp"
+#include "Util/Camera.h"
 
 namespace YD3D
 {
@@ -28,6 +30,15 @@ namespace YD3D
 	typedef std::vector<gc_ptr<Model>, gc_allocator<gc_ptr<Model>>> VecModel;
 	typedef std::unordered_map<Model*, DrawParam>					MapDrawParam;
 
+	ALIGN_16 struct SceneInfo
+	{
+		DirectX::XMFLOAT4X4 View = Identity4x4();
+		DirectX::XMFLOAT4X4 Project = Identity4x4();
+		DirectX::XMFLOAT4X4 ViewProject = Identity4x4();
+		ALIGN_16 DirectX::XMFLOAT3	CameraPos = {};
+		ALIGN_16 DirectX::XMFLOAT3	CameraDir = {};
+	};
+
 	class Scene : public enable_gc_ptr_form_raw
 	{
 	public:
@@ -44,6 +55,13 @@ namespace YD3D
 		const D3D12_VERTEX_BUFFER_VIEW& VertexView();
 		const MapDrawParam& GetDrawParam();
 		
+		GraphicConstBuffer<SceneInfo, 1>* GraphicSceneInfo();
+
+		void CameraPos(const DirectX::XMFLOAT3& pos);
+		void LookAt(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& target, const DirectX::XMFLOAT3& up);
+
+		void UpdateSceneInfo();
+
 	private:
 		ID3D12Device*				mDevice;
 		ystate<ESceneState>			mState;
@@ -55,6 +73,10 @@ namespace YD3D
 		VecModel					mModels;
 		MapDrawParam				mDrawParam;
 
+		Camera										mCamera;
+		gc_ptr<GraphicConstBuffer<SceneInfo, 1>>	mGrpSceneInfo;
+		SceneInfo									mSceneInfo;
+		
 		bool UploadTask(ID3D12GraphicsCommandList *commandList);
 		uint64_t PostUploadTask();
 	};

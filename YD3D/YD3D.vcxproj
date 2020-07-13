@@ -164,8 +164,10 @@
     <ClCompile Include="Resource\GraphicVertexBuffer.cpp" />
     <ClCompile Include="Scene\Model.cpp" />
     <ClCompile Include="Scene\Scene.cpp" />
+    <ClCompile Include="TestPass.cpp" />
     <ClCompile Include="TestPipeLine.cpp" />
     <ClCompile Include="TestWindow.cpp" />
+    <ClCompile Include="Util\Camera.cpp" />
     <ClCompile Include="Util\YD3D_Util.cpp" />
     <ClCompile Include="Window\YWindow.cpp" />
   </ItemGroup>
@@ -209,6 +211,7 @@
     <ClInclude Include="Graph\DxFactory.h" />
     <ClInclude Include="Graph\GraphicTask.h" />
     <ClInclude Include="Graph\SwapChain.h" />
+    <ClInclude Include="PipeLine\PassTemplate.hpp" />
     <ClInclude Include="PipeLine\PipeLineTemplate.hpp" />
     <ClInclude Include="PipeLine\ResourcePackage.h" />
     <ClInclude Include="Resource\GraphicConstBuffer.hpp" />
@@ -223,8 +226,10 @@
     <ClInclude Include="Resource\GraphicVertexBuffer.h" />
     <ClInclude Include="Scene\Model.h" />
     <ClInclude Include="Scene\Scene.h" />
+    <ClInclude Include="TestPass.h" />
     <ClInclude Include="TestPipeLine.h" />
     <ClInclude Include="TestWindow.h" />
+    <ClInclude Include="Util\Camera.h" />
     <ClInclude Include="Util\wait_free_queue.hpp" />
     <ClInclude Include="Util\YD3D_Define.h" />
     <ClInclude Include="Util\YD3D_Util.h" />
@@ -235,6 +240,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\DirectXTK12\Inc\SimpleMath.inl" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shader\Common.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shader\CommonVs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shader\ShapePs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

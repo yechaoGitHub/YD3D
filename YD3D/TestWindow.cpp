@@ -129,7 +129,7 @@ void TestWindow::InitScence()
 	model.assign(new Model);
 	mScene.assign(new Scene);
 
-	model->Create(vecVertex, vecIndex);
+	model->Create(_D3D12DEVICE_, vecVertex, vecIndex);
 	mScene->Create(_D3D12DEVICE_);
 	mScene->AddModel(model.get_raw_ptr());
 	mScene->UpdateGraphicResource(true);
@@ -138,7 +138,7 @@ void TestWindow::InitScence()
 void TestWindow::InitResource()
 {
 	mDs.assign(new GraphicDepthStencil);
-	mDs->Create(_D3D12DEVICE_, GetWidth(), GetHeight());
+	mDs->Create(_D3D12DEVICE_, GetWidth(), GetHeight(), DXGI_FORMAT_D24_UNORM_S8_UINT);
 	for (uint32_t i = 0; i < 2; i++) 
 	{
 		DescriptorHeapManager::GobalDescriptorHeapManager()->BindRtView(ANY_DESCRIPTOR_HEAP_POS, mSwapChain.GetBackBuffer(i), nullptr);

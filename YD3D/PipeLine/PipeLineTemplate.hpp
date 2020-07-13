@@ -95,11 +95,12 @@ namespace YD3D
 
 		virtual bool PostToCommandQueue(TResourcePackage *package)
 		{
-			gc_ptr<TResourcePackage> gcPackage = get_gc_ptr_from_raw(package);
+			/*gc_ptr<TResourcePackage> gcPackage = get_gc_ptr_from_raw(package);
 			GraphicTaskFunction &&task = std::bind(&PipeLineTemplate::PopulateCommandList, this, package, std::placeholders::_1);
 			GraphicTaskCallbackFunction &&packageCallback = std::bind(&TResourcePackage::ResourcePackageCallBack, gcPackage, std::placeholders::_1, std::placeholders::_2);
 			GraphicTask::PostGraphicTask(ECommandQueueType::ESWAP_CHAIN, std::move(task), nullptr, std::move(packageCallback));
 			
+			return true;*/
 			return true;
 		}
 	};

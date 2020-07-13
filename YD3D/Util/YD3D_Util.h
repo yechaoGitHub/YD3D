@@ -2,41 +2,12 @@
 #include "YD3D_Define.h"
 #include <d3d12.h>
 #include <DirectXMath.h>
+#include <D3Dcompiler.h>
 #include <string>
 #include <stdint.h>
 
 namespace YD3D
 {
-    ALIGN(0) struct Vertex
-    {
-        Vertex() {}
-        Vertex(
-            const DirectX::XMFLOAT3& p,
-            const DirectX::XMFLOAT3& n,
-            const DirectX::XMFLOAT3& t,
-            const DirectX::XMFLOAT2& uv) :
-            Position(p),
-            Normal(n),
-            Tangent(t),
-            TexCrood(uv) {}
-
-        Vertex(
-            float px, float py, float pz,
-            float nx, float ny, float nz,
-            float tx, float ty, float tz,
-            float u, float v) :
-            Position(px, py, pz),
-            Normal(nx, ny, nz),
-            Tangent(tx, ty, tz),
-            TexCrood(u, v) {}
-
-        DirectX::XMFLOAT3 Position = {};
-        DirectX::XMFLOAT3 Normal = {};
-        DirectX::XMFLOAT3 Color = {};
-        DirectX::XMFLOAT3 Tangent = {};
-        DirectX::XMFLOAT2 TexCrood = {};
-    };
-
     class DxException
     {
     public:
@@ -74,6 +45,15 @@ namespace YD3D
         return (byteSize + 255) & ~255;
     }
 
+#ifndef ThrowIfFailed
+#define ThrowIfFailed(x)                                              \
+{                                                                     \
+    HRESULT hr__ = (x);                                               \
+    std::wstring wfn = AnsiToWString(__FILE__);                       \
+    if(FAILED(hr__)) { throw DxException(hr__, L#x, wfn, __LINE__); } \
+}
+#endif
+
     inline bool IsNullCpuDescriptorHandle(const D3D12_CPU_DESCRIPTOR_HANDLE &cpuHandle)
     {
         return cpuHandle.ptr != 0;
@@ -84,13 +64,24 @@ namespace YD3D
         return gpuHandle.ptr != 0;
     }
 
-#ifndef ThrowIfFailed
-#define ThrowIfFailed(x)                                              \
-{                                                                     \
-    HRESULT hr__ = (x);                                               \
-    std::wstring wfn = AnsiToWString(__FILE__);                       \
-    if(FAILED(hr__)) { throw DxException(hr__, L#x, wfn, __LINE__); } \
-}
-#endif
+    inline const std::vector<D3D12_INPUT_ELEMENT_DESC>& GetCommonInputLayout()
+    {
+        static std::vector<D3D12_INPUT_ELEMENT_DESC> CommonInputLayOut =
+        {
+            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 36, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 52, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+        };
+
+        return CommonInputLayOut;
+    }
+
+    Microsoft::WRL::ComPtr<ID3DBlob> CompileShader(
+        const std::wstring& filename,
+        const D3D_SHADER_MACRO* defines,
+        const std::string& entrypoint,
+        const std::string& target);
 
 };

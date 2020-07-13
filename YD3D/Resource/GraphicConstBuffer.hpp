@@ -28,7 +28,7 @@ namespace YD3D
 
 		bool Update(int elementIndex, const T& data)
 		{
-			return CopyData(elementIndex * mElementByteSize, &data, mElementByteSize);;
+			return CopyData(elementIndex * mElementByteSize, reinterpret_cast<const BYTE*>(&data), mElementByteSize);;
 		}
 
 		D3D12_GPU_VIRTUAL_ADDRESS GetElemGpuAddress(int elementIndex) const

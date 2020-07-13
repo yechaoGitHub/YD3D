@@ -24,6 +24,11 @@ namespace YD3D
 		assert(mIndexBuffer.Create(mDevice, 1024, DXGI_FORMAT_R32_UINT));
 		assert(mUploadBuffer.Create(mDevice, 1024));
 
+		mCamera.SetLens(0.25f * Pi, 4.0/3.0, 0.1, 1000.0f);
+		mGrpSceneInfo.assign(new GraphicConstBuffer<SceneInfo, 1>);
+		assert(mGrpSceneInfo->Create(mDevice));
+		UpdateGraphicResource(true);
+		
 		return true;
 	}
 
@@ -98,6 +103,34 @@ namespace YD3D
 	const MapDrawParam& Scene::GetDrawParam()
 	{
 		return mDrawParam;
+	}
+
+	GraphicConstBuffer<SceneInfo, 1>* Scene::GraphicSceneInfo()
+	{
+		return mGrpSceneInfo.get_raw_ptr();
+	}
+
+	void Scene::CameraPos(const DirectX::XMFLOAT3& pos)
+	{
+		mCamera.SetPosition(pos);
+	}
+
+	void Scene::LookAt(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& target, const DirectX::XMFLOAT3& up)
+	{
+		mCamera.LookAt(pos, target, up);
+	}
+
+	void Scene::UpdateSceneInfo()
+	{
+		mCamera.UpdateViewMatrix();
+		mSceneInfo.CameraPos = mCamera.GetPosition3f();
+		mSceneInfo.CameraDir = mCamera.GetLook3f();
+		mSceneInfo.View = mCamera.GetView4x4f();
+		mSceneInfo.Project = mCamera.GetProj4x4f();
+		auto matViewProj = mCamera.GetView() * mCamera.GetProj();
+		XMStoreFloat4x4(&mSceneInfo.ViewProject, matViewProj);
+
+		mGrpSceneInfo->Update(0, mSceneInfo);
 	}
 
 	bool Scene::UploadTask(ID3D12GraphicsCommandList* commandList)

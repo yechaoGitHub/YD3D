@@ -4,9 +4,9 @@ namespace YD3D
 {
 	ResourcePackage::ResourcePackage():
 		State(EResourcePackageState::EINIT),
-		mHasCallback(false)
+		mHasUserCallback(false)
 	{
-
+		mPackageCallback = std::bind(&ResourcePackage::ResourcePackageCallBack, this, std::placeholders::_1, std::placeholders::_2);
 	}
 
 	ResourcePackage::~ResourcePackage()
@@ -14,29 +14,29 @@ namespace YD3D
 
 	}
 
-	void ResourcePackage::SetCallback(GraphicTaskCallbackFunction&& callback)
+	void ResourcePackage::BindCallback(GraphicTaskCallbackFunction&& UserCallback)
 	{
-		mHasCallback = true;
-		mCallback = std::move(callback);
+		mHasUserCallback = true;
+		mUserCallback = std::move(UserCallback);
 	}
 
-	bool ResourcePackage::HasCallback()
+	GraphicTaskCallbackFunction& ResourcePackage::UserCallback()
 	{
-		return mHasCallback;
+		return mUserCallback;
 	}
 
-	GraphicTaskCallbackFunction&& ResourcePackage::MoveCallback()
+	GraphicTaskCallbackFunction& ResourcePackage::PackageCallback()
 	{
-		return std::move(mCallback);
+		return mPackageCallback;
 	}
 
 	void ResourcePackage::ResourcePackageCallBack(D3D12_COMMAND_LIST_TYPE type, uint64_t fence)
 	{
 		State.set_state(EResourcePackageState::ERENDERED);
 
-		if (mHasCallback)
+		if (mHasUserCallback)
 		{
-			mCallback(type, fence);
+			mUserCallback(type, fence);
 		}
 	}
 

@@ -12,18 +12,21 @@ namespace YD3D
 		virtual ~ResourcePackage();
 
 		gc_ptr<GraphicRenderTarget>		RT;
+		D3D12_CPU_DESCRIPTOR_HANDLE		RtHandle;
 		gc_ptr<GraphicDepthStencil>		DS;
+		D3D12_CPU_DESCRIPTOR_HANDLE		DsHandle;
 		ystate<EResourcePackageState>	State;
+		
+		void BindCallback(GraphicTaskCallbackFunction &&UserCallback);
+		GraphicTaskCallbackFunction& UserCallback();
+		GraphicTaskCallbackFunction& PackageCallback();
 
-		void SetCallback(GraphicTaskCallbackFunction&& callback);
-		bool HasCallback();
-		GraphicTaskCallbackFunction&& MoveCallback();
-
-		bool							mHasCallback;
-		GraphicTaskCallbackFunction		mCallback;
+	private:
+		GraphicTaskCallbackFunction		mPackageCallback;
+		bool							mHasUserCallback;
+		GraphicTaskCallbackFunction		mUserCallback; 
 
 		void ResourcePackageCallBack(D3D12_COMMAND_LIST_TYPE type, uint64_t fence);
-	
 	};
 
 }

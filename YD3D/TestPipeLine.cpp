@@ -13,38 +13,133 @@ TestPipeLine::~TestPipeLine()
 
 }
 
+bool TestPipeLine::Create(ID3D12Device* device, const YD3D::PipeLineInitParam* pipeLineInitParam) 
+{
+	TestPassInitParam passInitParam;
+	mPass.Create(device, &passInitParam);
+	Super::Create(device, pipeLineInitParam);
+
+	return true;
+}
+
+bool TestPipeLine::SetScene(Scene* scene)
+{
+	mScene = get_gc_ptr_from_raw(scene);
+	mPass.SetScene(scene);
+	return true;
+}
+
 bool TestPipeLine::Draw(YD3D::ResourcePackage *package)
 {
-	package->State.set_state(EResourcePackageState::ERENDERING);
-	return PostToCommandQueue(package);
+	PostToCommandQueueGC(ECommandQueueType::ESWAP_CHAIN, get_gc_ptr_from_raw(package), &TestPipeLine::PopulateCommandListGC, nullptr);
+
+	return true;
 }
 
 bool TestPipeLine::PopulateCommandList(YD3D::ResourcePackage *package, ID3D12GraphicsCommandList* commandList)
 {
-	DescriptorHeapManager *descriptor = DescriptorHeapManager::GobalDescriptorHeapManager();
-	D3D12_CPU_DESCRIPTOR_HANDLE rtHandle = descriptor->GetResourceCpuHandle(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, package->RT.get_raw_ptr());
-	assert(IsNullCpuDescriptorHandle(rtHandle));
-	D3D12_CPU_DESCRIPTOR_HANDLE dsHandle = descriptor->GetResourceCpuHandle(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, package->DS.get_raw_ptr());
-	assert(IsNullCpuDescriptorHandle(dsHandle));
+	PopulateBeginPipeLine(package, commandList);
+	mPass.PopulateCommandList(package, commandList);
+	PopulateEndPipeLine(package, commandList);
+
+	return true;
+}
+
+bool TestPipeLine::PopulateCommandListGC(gc_ptr<YD3D::ResourcePackage> package, ID3D12GraphicsCommandList* commandList)
+{
+	PopulateBeginPipeLine(package.get_raw_ptr(), commandList);
+	mPass.PopulateCommandList(package.get_raw_ptr(), commandList);
+	PopulateEndPipeLine(package.get_raw_ptr(), commandList);
+
+	return true;
+}
+
+bool TestPipeLine::PostToCommandQueue(ECommandQueueType type, YD3D::ResourcePackage* package, PopulateCommandListFunction func, uint64_t* fence)
+{
+	GraphicTaskFunction&& task = std::bind(func, this, package, std::placeholders::_1);
+	GraphicTaskCallbackFunction callback = package->PackageCallback();
+	return GraphicTask::PostGraphicTask(type, std::move(task), fence, std::move(callback));
+}
+
+bool TestPipeLine::PostToCommandQueue(ECommandQueueType type, YD3D::ResourcePackage* package, PopulateCommandListFunction func, uint64_t* fence, GraphicTaskCallbackFunction&& callback)
+{
+	GraphicTaskFunction&& task = std::bind(func, this, package, std::placeholders::_1);
+	package->BindCallback(std::move(callback));
+	GraphicTaskCallbackFunction packageCallback = package->PackageCallback();
+	return GraphicTask::PostGraphicTask(type, std::move(task), fence, std::move(packageCallback));
+}
+
+bool TestPipeLine::PostToCommandQueue(ECommandQueueType type, YD3D::ResourcePackage* package, GraphicTaskFunction&& func, uint64_t* fence)
+{
+	GraphicTaskCallbackFunction callback = package->PackageCallback();
+	return GraphicTask::PostGraphicTask(type, std::move(func), fence, std::move(callback));
+}
+
+bool TestPipeLine::PostToCommandQueue(ECommandQueueType type, YD3D::ResourcePackage* package, GraphicTaskFunction&& func, uint64_t* fence, GraphicTaskCallbackFunction&& callback)
+{
+	package->BindCallback(std::move(callback));
+	GraphicTaskCallbackFunction packageCallback = package->PackageCallback();
+	return GraphicTask::PostGraphicTask(type, std::move(func), fence, std::move(packageCallback));
+}
+
+bool TestPipeLine::PostToCommandQueueGC(ECommandQueueType type, gc_ptr<YD3D::ResourcePackage> package, PopulateCommandListFunctionGC func, uint64_t* fence)
+{
+	GraphicTaskFunction&& task = std::bind(func, this, package, std::placeholders::_1);
+	GraphicTaskCallbackFunction callback = package->PackageCallback();
+	return 	GraphicTask::PostGraphicTask(type, std::move(task), fence, std::move(callback));
+}
+
+bool TestPipeLine::PostToCommandQueueGC(ECommandQueueType type, gc_ptr<YD3D::ResourcePackage> package, PopulateCommandListFunctionGC func, uint64_t* fence, GraphicTaskCallbackFunction&& callback)
+{
+	GraphicTaskFunction&& task = std::bind(func, this, package, std::placeholders::_1);
+	package->BindCallback(std::move(callback));
+	GraphicTaskCallbackFunction packageCallback = package->PackageCallback();
+	return GraphicTask::PostGraphicTask(type, std::move(task), fence, std::move(packageCallback));
+}
+
+bool TestPipeLine::PostToCommandQueueGC(ECommandQueueType type, gc_ptr<YD3D::ResourcePackage> package, GraphicTaskFunction&& func, uint64_t* fence)
+{
+	GraphicTaskCallbackFunction callback = package->PackageCallback();
+	return GraphicTask::PostGraphicTask(type, std::move(func), fence, std::move(callback));
+}
+
+bool TestPipeLine::PostToCommandQueueGC(ECommandQueueType type, gc_ptr<YD3D::ResourcePackage> package, GraphicTaskFunction&& func, uint64_t* fence, GraphicTaskCallbackFunction&& callback)
+{
+	package->BindCallback(std::move(callback));
+	GraphicTaskCallbackFunction packageCallback = package->PackageCallback();
+	return GraphicTask::PostGraphicTask(type, std::move(func), fence, std::move(packageCallback));
+}
+
+bool TestPipeLine::WaitForCommandQueueCompletion(ECommandQueueType type, uint64_t fenceValue, bool waitCallBack)
+{
+	return GraphicTask::WaitForGraphicTaskCompletion(type, fenceValue, waitCallBack);
+}
+
+bool TestPipeLine::PopulateBeginPipeLine(YD3D::ResourcePackage* package, ID3D12GraphicsCommandList* commandList)
+{
+	DescriptorHeapManager* descriptor = DescriptorHeapManager::GobalDescriptorHeapManager();
+	package->RtHandle = descriptor->GetResourceCpuHandle(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, package->RT.get_raw_ptr());
+	assert(IsNullCpuDescriptorHandle(package->RtHandle));
+	package->DsHandle = descriptor->GetResourceCpuHandle(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, package->DS.get_raw_ptr());
+	assert(IsNullCpuDescriptorHandle(package->DsHandle));
 
 	commandList->RSSetViewports(1, &mViewport);
 	commandList->RSSetScissorRects(1, &mScissorRect);
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(package->RT->Resource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	commandList->ClearRenderTargetView(rtHandle, DirectX::Colors::Brown, 0, nullptr);
-	commandList->ClearDepthStencilView(dsHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
+	commandList->ClearRenderTargetView(package->RtHandle, DirectX::Colors::Brown, 0, nullptr);
+	commandList->ClearDepthStencilView(package->DsHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
 
 	commandList->IASetVertexBuffers(0, 1, &mScene->VertexView());
 	commandList->IASetIndexBuffer(&mScene->IndexView());
 
-	for (auto &pair : mScene->GetDrawParam()) 
-	{
-		const DrawParam &drawParam = pair.second;
-		commandList->DrawIndexedInstanced(drawParam.IndexCountPerInstance, 1, drawParam.StartIndexLocation, drawParam.BaseVertexLocation, drawParam.StartInstanceLocation);
-	}
-
-	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(package->RT->Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON));
-
 	return true;
 }
+
+bool TestPipeLine::PopulateEndPipeLine(YD3D::ResourcePackage* package, ID3D12GraphicsCommandList* commandList)
+{
+	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(package->RT->Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON));
+	return true;
+}
+
