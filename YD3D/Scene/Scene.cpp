@@ -4,6 +4,8 @@
 
 namespace YD3D 
 {
+	using namespace DirectX;
+
 	Scene::Scene():
 		mDevice(nullptr),
 		mState(ESceneState::CLEAR),
@@ -25,9 +27,9 @@ namespace YD3D
 		assert(mUploadBuffer.Create(mDevice, 1024));
 
 		mCamera.SetLens(0.25f * Pi, 4.0/3.0, 0.1, 1000.0f);
+		mCamera.LookAt(XMFLOAT3{ 0, 0, -3 }, XMFLOAT3{ 0,0,0 }, XMFLOAT3{0, 1, 0});
 		mGrpSceneInfo.assign(new GraphicConstBuffer<SceneInfo, 1>);
 		assert(mGrpSceneInfo->Create(mDevice));
-		UpdateGraphicResource(true);
 		
 		return true;
 	}
@@ -69,21 +71,24 @@ namespace YD3D
 		{
 			uint64_t curVertexSize = model->VertexSize();
 			mUploadBuffer.CopyData(vertexOffset, reinterpret_cast<const BYTE*>(model->Vertices()), curVertexSize);
-			vertexOffset += curVertexSize;
-
+			
 			uint64_t curIndexSize = model->IndexSize();
 			mUploadBuffer.CopyData(indexOffset + mVertexBufferLength, reinterpret_cast<const BYTE*>(model->Indices()), curIndexSize);
-			indexOffset += curIndexSize;
-
+			
 			DrawParam drawParam;
 			drawParam.Model = model.get_raw_ptr();
 			drawParam.IndexCountPerInstance = model->IndexCount();
 			drawParam.BaseVertexLocation = vertexOffset;
 			drawParam.StartIndexLocation = indexOffset;
 			mDrawParam.insert(std::make_pair(drawParam.Model, drawParam));
+			vertexOffset += curVertexSize;
+			indexOffset += curIndexSize;
+
+			model->UpdateModelInfo();
 		}
 		
 		uint64_t fenceValue = PostUploadTask();
+		UpdateSceneInfo();
 		if (wait) 
 		{
 			GraphicTask::WaitForGraphicTaskCompletion(ECommandQueueType::ECOPY, fenceValue, true);
@@ -123,6 +128,7 @@ namespace YD3D
 	void Scene::UpdateSceneInfo()
 	{
 		mCamera.UpdateViewMatrix();
+
 		mSceneInfo.CameraPos = mCamera.GetPosition3f();
 		mSceneInfo.CameraDir = mCamera.GetLook3f();
 		mSceneInfo.View = mCamera.GetView4x4f();

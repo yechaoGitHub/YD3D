@@ -39,9 +39,9 @@ bool TestPass::PopulateCommandList(YD3D::ResourcePackage* package, ID3D12Graphic
 	{
 		const DrawParam& drawParam = pair.second;
 		Model *model = drawParam.Model;
-		commandList->SetGraphicsRootConstantBufferView(0, mScene->GraphicSceneInfo()->GetGpuAddress());
-		commandList->SetGraphicsRootConstantBufferView(1, model->GraphicModelInfo()->GetGpuAddress());
-
+		commandList->SetGraphicsRootConstantBufferView(0, model->GraphicModelInfo()->GetGpuAddress());
+		commandList->SetGraphicsRootConstantBufferView(1, mScene->GraphicSceneInfo()->GetGpuAddress());
+		
 		commandList->DrawIndexedInstanced(drawParam.IndexCountPerInstance, 1, drawParam.StartIndexLocation, drawParam.BaseVertexLocation, drawParam.StartInstanceLocation);
 	}
 
