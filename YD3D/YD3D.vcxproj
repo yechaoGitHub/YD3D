@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -162,12 +162,13 @@
     <ClCompile Include="Resource\GraphicTexture.cpp" />
     <ClCompile Include="Resource\GraphicUploadBuffer.cpp" />
     <ClCompile Include="Resource\GraphicVertexBuffer.cpp" />
+    <ClCompile Include="Scene\Camera.cpp" />
     <ClCompile Include="Scene\Model.cpp" />
     <ClCompile Include="Scene\Scene.cpp" />
     <ClCompile Include="TestPass.cpp" />
     <ClCompile Include="TestPipeLine.cpp" />
     <ClCompile Include="TestWindow.cpp" />
-    <ClCompile Include="Util\Camera.cpp" />
+    <ClCompile Include="Util\Timer.cpp" />
     <ClCompile Include="Util\YD3D_Util.cpp" />
     <ClCompile Include="Window\YWindow.cpp" />
   </ItemGroup>
@@ -224,18 +225,20 @@
     <ClInclude Include="Resource\GraphicTexture.h" />
     <ClInclude Include="Resource\GraphicUploadBuffer.h" />
     <ClInclude Include="Resource\GraphicVertexBuffer.h" />
+    <ClInclude Include="Scene\Camera.h" />
     <ClInclude Include="Scene\Model.h" />
     <ClInclude Include="Scene\Scene.h" />
     <ClInclude Include="TestPass.h" />
     <ClInclude Include="TestPipeLine.h" />
     <ClInclude Include="TestWindow.h" />
-    <ClInclude Include="Util\Camera.h" />
+    <ClInclude Include="Util\Timer.h" />
     <ClInclude Include="Util\wait_free_queue.hpp" />
     <ClInclude Include="Util\YD3D_Define.h" />
     <ClInclude Include="Util\YD3D_Util.h" />
     <ClInclude Include="Util\ystate.hpp" />
     <ClInclude Include="Util\ythread.hpp" />
     <ClInclude Include="Window\YWindow.h" />
+    <ClInclude Include="Window\YWndowDefine.h" />
     <ClInclude Include="YD3D_Header.h" />
   </ItemGroup>
   <ItemGroup>

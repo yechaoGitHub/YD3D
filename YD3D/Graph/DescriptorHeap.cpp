@@ -20,8 +20,6 @@ namespace YD3D
 		desc.NumDescriptors = numDescriptors;
 		desc.Flags = flags;
 
-		
-
 		device->CreateDescriptorHeap(&desc, IID_PPV_ARGS(&mDescriptorHeap));
 		mDescriptorCount = numDescriptors;
 		mIncreasement = device->GetDescriptorHandleIncrementSize(heapType);

@@ -7,8 +7,8 @@ namespace YD3D
 	using namespace DirectX;
 
 	Scene::Scene():
+		State(ESceneState::FREE),
 		mDevice(nullptr),
-		mState(ESceneState::CLEAR),
 		mVertexBufferLength(0),
 		mIndexBufferLength(0),
 		mModels(get_gc_allocator<gc_ptr<Model>>())
@@ -91,7 +91,7 @@ namespace YD3D
 		UpdateSceneInfo();
 		if (wait) 
 		{
-			GraphicTask::WaitForGraphicTaskCompletion(ECommandQueueType::ECOPY, fenceValue, true);
+			GraphicTask::WaitForGraphicTaskCompletion(ECommandQueueType::ESWAP_CHAIN, fenceValue, true);
 		}
 	}
 
@@ -115,14 +115,9 @@ namespace YD3D
 		return mGrpSceneInfo.get_raw_ptr();
 	}
 
-	void Scene::CameraPos(const DirectX::XMFLOAT3& pos)
+	Camera& Scene::GetCamera()
 	{
-		mCamera.SetPosition(pos);
-	}
-
-	void Scene::LookAt(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& target, const DirectX::XMFLOAT3& up)
-	{
-		mCamera.LookAt(pos, target, up);
+		return mCamera;
 	}
 
 	void Scene::UpdateSceneInfo()
@@ -133,7 +128,7 @@ namespace YD3D
 		mSceneInfo.CameraDir = mCamera.GetLook3f();
 		mSceneInfo.View = mCamera.GetView4x4f();
 		mSceneInfo.Project = mCamera.GetProj4x4f();
-		auto matViewProj = mCamera.GetView() * mCamera.GetProj();
+		auto matViewProj = XMMatrixMultiply(mCamera.GetView() , mCamera.GetProj());
 		XMStoreFloat4x4(&mSceneInfo.ViewProject, matViewProj);
 
 		mGrpSceneInfo->Update(0, mSceneInfo);
@@ -162,7 +157,7 @@ namespace YD3D
 	{		
 		uint64_t fenceValue(0);
 		GraphicTaskFunction task = std::bind(&Scene::UploadTask, this, std::placeholders::_1);
-		GraphicTask::PostGraphicTask(ECommandQueueType::ECOPY, std::move(task), &fenceValue);
+		GraphicTask::PostGraphicTask(ECommandQueueType::ESWAP_CHAIN, std::move(task), &fenceValue);
 		return fenceValue;
 	}
 }

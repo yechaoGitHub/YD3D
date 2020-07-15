@@ -5,7 +5,7 @@ using namespace YD3D;
 
 int main() 
 {
-	garbage_collection::start_up(2);
+	garbage_collection::start_up(1);
 
 	TestWindow win;
 	win.Create(800, 600, L"hello");

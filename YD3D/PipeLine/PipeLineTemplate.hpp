@@ -46,6 +46,10 @@ namespace YD3D
 
 			InitViewPort();
 
+			ThrowIfFailed(mDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&mCommandAllocator)));
+			ThrowIfFailed(mDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAllocator.Get(), nullptr, IID_PPV_ARGS(&mCommandList)));
+			mCommandList->Close();
+
 			mWorkhread.run_loop(&PipeLineTemplate::ProcessResourcePackageFunction, this);
 
 			return true;
@@ -56,10 +60,12 @@ namespace YD3D
 			package->State.set_state(EResourcePackageState::EPOSTED);
 			gc_ptr<TResourcePackage> gc_ptr = get_gc_ptr_from_raw(package);
 			mPackageQueue.enqueue(gc_ptr);
+			mIdleCount = 0;
+			mDrawConVar.notify_one();
 			return true;
 		}
-
-		virtual bool Draw(TResourcePackage *package)
+		
+		virtual bool Draw(TResourcePackage* package)
 		{
 			return false;
 		}
@@ -70,13 +76,18 @@ namespace YD3D
 		}
 		
 	protected:
-		ID3D12Device*								mDevice;
-		TPipeLineInitParam							mInitParam;
-		gc_ptr<Scene>								mScene;
-		ythread<void>								mWorkhread;
-		D3D12_VIEWPORT								mViewport;
-		D3D12_RECT									mScissorRect;
-		wait_free_queue<gc_ptr<TResourcePackage>>	mPackageQueue;
+		ID3D12Device*										mDevice;
+		D3D12_VIEWPORT										mViewport;
+		D3D12_RECT											mScissorRect;
+		std::atomic<uint64_t>								mIdleCount;
+		std::mutex											mDrawLock;
+		std::condition_variable								mDrawConVar;
+		TPipeLineInitParam									mInitParam;
+		gc_ptr<Scene>										mScene;
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>		mCommandAllocator;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>	mCommandList;
+		ythread<void>										mWorkhread;
+		wait_free_queue<gc_ptr<TResourcePackage>>			mPackageQueue;
 
 		virtual void ProcessResourcePackageFunction() 
 		{
@@ -84,6 +95,17 @@ namespace YD3D
 			if (mPackageQueue.dequeue(package))
 			{
 				Draw(package.get_raw_ptr());
+				mIdleCount = 0;
+			}
+			else 
+			{
+				mIdleCount++;
+				std::this_thread::yield();
+				if (mIdleCount > 20)
+				{
+					std::unique_lock<std::mutex> ulock(mDrawLock);
+					mDrawConVar.wait(ulock, [this] {return mIdleCount == 0; });
+				}
 			}
 		}
 
@@ -93,15 +115,12 @@ namespace YD3D
 			mScissorRect = {0, 0, static_cast<LONG>(mInitParam.outputWidth), static_cast<LONG>(mInitParam.outputHeight) };
 		}
 
-		virtual bool PostToCommandQueue(TResourcePackage *package)
+		virtual bool ResetCommand() 
 		{
-			/*gc_ptr<TResourcePackage> gcPackage = get_gc_ptr_from_raw(package);
-			GraphicTaskFunction &&task = std::bind(&PipeLineTemplate::PopulateCommandList, this, package, std::placeholders::_1);
-			GraphicTaskCallbackFunction &&packageCallback = std::bind(&TResourcePackage::ResourcePackageCallBack, gcPackage, std::placeholders::_1, std::placeholders::_2);
-			GraphicTask::PostGraphicTask(ECommandQueueType::ESWAP_CHAIN, std::move(task), nullptr, std::move(packageCallback));
-			
-			return true;*/
+			mCommandAllocator->Reset();
+			mCommandList->Reset(mCommandAllocator.Get(), nullptr);
 			return true;
 		}
+
 	};
 }

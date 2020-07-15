@@ -1,5 +1,4 @@
 #include "YWindow.h"
-#include <windows.h>
 
 namespace YD3D
 {
@@ -37,7 +36,9 @@ namespace YD3D
 		assert(mMapWindow.erase(hwnd));
 	}
 
-	YWindow::YWindow()
+	YWindow::YWindow() :
+		mMouseCaptured(false),
+		mMouseHold(false)
 	{
 
 	}
@@ -90,67 +91,95 @@ namespace YD3D
 		return mHeight;
 	}
 
+	//bool YWindow::MouseCaptured()
+	//{
+	//	return false;
+	//}
+
+	//EMouseKey YWindow::MouseHold()
+	//{
+	//	return EMouseKey();
+	//}
+
 	LRESULT YWindow::MainWndProc(UINT msg, WPARAM wParam, LPARAM lParam)
 	{
-		//switch (msg)
-		//{
-		//case WM_ACTIVATE:
-		//	if (LOWORD(wParam) == WA_INACTIVE)
-		//	{
-		//		
-		//	}
-		//	else
-		//	{
-		//		
-		//	}
-		//	return 0;
+		switch (msg)
+		{
+		case WM_ACTIVATE:
+			OnActivate(static_cast<EActivateState>(wParam));
+			break;
+		
+		case WM_LBUTTONDOWN:
+			OnMouseDown(static_cast<EMouseKey>(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			break;
 
-		//case WM_SIZE:
+		case WM_LBUTTONUP:
+			OnMouseUp(static_cast<EMouseKey>(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			break;
 
-		//	return 0;
+		case WM_RBUTTONDOWN:
+			OnMouseDown(static_cast<EMouseKey>(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			break;
+		
+		case WM_RBUTTONUP:
+			OnMouseUp(static_cast<EMouseKey>(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			break;
 
-		//case WM_ENTERSIZEMOVE:
-		//	return 0;
+		case WM_MOUSEMOVE:
+			OnMouseMove(static_cast<EMouseKey>(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			break;
 
-		//	
-		//case WM_EXITSIZEMOVE:
-		//	return 0;
+		case WM_NCMOUSEMOVE:
+			OnNcMouseMove(static_cast<EMouseKey>(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			break;
 
+		case WM_KEYDOWN:
+			OnKeyDown(wParam, lParam);
+			break;
 
-		//case WM_DESTROY:
-		//	PostQuitMessage(0);
-		//	return 0;
+		case WM_KEYUP:
+			OnKeyUp(wParam, lParam);
+			break;
 
-		//case WM_MENUCHAR:
-		//	return MAKELRESULT(0, MNC_CLOSE);
+		case WM_SIZE:
+			OnSize(static_cast<EResizeState>(wParam), GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+			break;
 
-		//case WM_GETMINMAXINFO:
-		//	((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
-		//	((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
-		//	return 0;
-
-		//case WM_LBUTTONDOWN:
-		//case WM_MBUTTONDOWN:
-		//case WM_RBUTTONDOWN:
-		//	
-		//	return 0;
-		//case WM_LBUTTONUP:
-		//case WM_MBUTTONUP:
-		//case WM_RBUTTONUP:
-		//	
-		//	return 0;
-		//case WM_MOUSEMOVE:
-		//	
-		//	return 0;
-		//case WM_KEYUP:
-		//	if (wParam == VK_ESCAPE)
-		//	{
-		//		PostQuitMessage(0);
-		//	}
-		//	return 0;
-		//}
+		}
 
 		return DefWindowProc(mHwnd, msg, wParam, lParam);
+	}
+
+	void YWindow::OnMouseMove(EMouseKey btnState, uint32_t x, uint32_t y)
+	{
+	}
+
+	void YWindow::OnMouseUp(EMouseKey btnState, uint32_t x, uint32_t y)
+	{
+	}
+
+	void YWindow::OnMouseDown(EMouseKey btnState, uint32_t x, uint32_t y)
+	{
+	}
+
+	void YWindow::OnKeyDown(VirtualKey key, VirtualKeyState keyState)
+	{
+	}
+
+	void YWindow::OnKeyUp(VirtualKey key, VirtualKeyState keyState)
+	{
+	}
+
+	void YWindow::OnActivate(EActivateState activate)
+	{
+	}
+
+	void YWindow::OnSize(EResizeState state, uint32_t x, uint32_t y)
+	{
+	}
+
+	void YWindow::OnNcMouseMove(EMouseKey btnState, uint32_t x, uint32_t y)
+	{
 	}
 
 	void YWindow::InitWindow()

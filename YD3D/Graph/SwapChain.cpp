@@ -26,7 +26,7 @@ namespace YD3D
 		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		swapChainDesc.SampleDesc.Count = 1;
 
-	
+
 		Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain1;
 		CommandQueue& swapChainQueue = GraphicTask::GetGraphicTaskCommandQueue(ECommandQueueType::ESWAP_CHAIN);
 		ThrowIfFailed(mFactory->CreateSwapChainForHwnd(swapChainQueue.Queue(), winHandle, &swapChainDesc, nullptr, nullptr, &swapChain1));

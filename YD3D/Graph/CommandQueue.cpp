@@ -8,6 +8,8 @@ namespace YD3D
 		mFenceValue(0),
 		mCommandCount(0),
 		mCallbackFence(0),
+		mIdleQueueCount(0),
+		mIdleCallbackCount(0),
 		mCmdQueue(100),
 		mCompletionQueue(100)
 	{
@@ -43,6 +45,8 @@ namespace YD3D
 	bool CommandQueue::PostCommandList(uint32_t count, ID3D12GraphicsCommandList** commandList, uint64_t* fenceValue)
 	{
 		uint64_t nxtFenceValue = mCmdQueue.enqueue_range(commandList, count);
+		mIdleQueueCount = 0;
+		mQueueConVar.notify_one();
 		if (fenceValue)
 		{
 			*fenceValue = nxtFenceValue + count;
@@ -54,6 +58,8 @@ namespace YD3D
 	bool CommandQueue::PostCommandList(uint32_t count, ID3D12GraphicsCommandList** commandList, uint64_t* fenceValue, CommandQueueCallbackFunction&& completionCallback)
 	{
 		uint64_t nxtFenceValue = mCmdQueue.enqueue_range(commandList, count);
+		mIdleQueueCount = 0;
+		mQueueConVar.notify_one();
 		if (fenceValue)
 		{
 			*fenceValue = nxtFenceValue + count;
@@ -64,6 +70,8 @@ namespace YD3D
 		callback.completionCallback = std::move(completionCallback);
 
 		mCompletionQueue.enqueue(std::move(callback));
+		mIdleCallbackCount = 0;
+		mCallbackConVar.notify_one();
 
 		return true;
 	}
@@ -86,14 +94,22 @@ namespace YD3D
 	void CommandQueue::CommandQueueThreadFunction()
 	{
 		ID3D12GraphicsCommandList* commandListBuffer[10] = {};
+	
 		uint64_t count = mCmdQueue.dequeue_range(commandListBuffer, 10 * sizeof(ID3D12CommandList));
 		if (count) 
 		{
 			ExcuteQueue(reinterpret_cast<ID3D12CommandList**>(commandListBuffer), count);
+			mIdleQueueCount = 0;
 		}
 		else 
 		{
+			mIdleQueueCount++;
 			std::this_thread::yield();
+			if (mIdleQueueCount > 20)
+			{
+				std::unique_lock<std::mutex> uLock(mQueueLock);
+				mQueueConVar.wait(uLock, [this] {return mCmdQueue.size(); });
+			}
 		}
 	}
 
@@ -106,10 +122,17 @@ namespace YD3D
 			WaitForCompletion(callback.fenceValue, false);
 			callback.completionCallback(mType, callback.fenceValue);
 			mCallbackFence = callback.fenceValue;
+			mIdleCallbackCount = 0;
 		}
 		else 
 		{
+			mIdleCallbackCount++;
 			std::this_thread::yield();
+			if (mIdleCallbackCount > 20)
+			{
+				std::unique_lock<std::mutex> uLock(mCallbackLock);
+				mCallbackConVar.wait(uLock, [this] { return mCompletionQueue.size(); });
+			}
 		}
 	}
 

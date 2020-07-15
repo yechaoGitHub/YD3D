@@ -1,5 +1,4 @@
 #include "YD3D_Header.h"
-#include "YD3D_Util.h"
 
 namespace YD3D
 {

@@ -1,11 +1,11 @@
 #pragma once
 #include "YD3D_Header.h"
+#include "Camera.h"
 #include "Model.h"
 #include "Resource/GraphicVertexBuffer.h"
 #include "Resource/GraphicIndexBuffer.h"
 #include "Resource/GraphicUploadBuffer.h"
 #include "Resource/GraphicConstBuffer.hpp"
-#include "Util/Camera.h"
 
 namespace YD3D
 {
@@ -39,6 +39,8 @@ namespace YD3D
 		ALIGN_16 DirectX::XMFLOAT3	CameraDir = {};
 	};
 
+	enum ESceneState { FREE = 0, SCENE_UPDATING = 0x01, RENDER_UPLOADING = 0x02, DIRTY = 0x04 };
+
 	class Scene : public enable_gc_ptr_form_raw
 	{
 	public:
@@ -56,15 +58,12 @@ namespace YD3D
 		const MapDrawParam& GetDrawParam();
 		
 		GraphicConstBuffer<SceneInfo, 1>* GraphicSceneInfo();
-
-		void CameraPos(const DirectX::XMFLOAT3& pos);
-		void LookAt(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& target, const DirectX::XMFLOAT3& up);
-
+		Camera& GetCamera();
 		void UpdateSceneInfo();
+		ystate<ESceneState>			State;
 
 	private:
 		ID3D12Device*				mDevice;
-		ystate<ESceneState>			mState;
 		uint64_t					mVertexBufferLength;
 		uint64_t					mIndexBufferLength;
 		GraphicVertexBuffer			mVertexBuffer;

@@ -52,7 +52,23 @@ namespace YD3D
 		return pair.CommandList.Get();
 	}
 
-	void CommandListAllocator::Free(ID3D12GraphicsCommandList* commandList)
+	bool CommandListAllocator::Reset(ID3D12GraphicsCommandList* commandList)
+	{
+		std::scoped_lock<std::mutex> al(mLock);
+		if (mMapCommandList.find(commandList) != mMapCommandList.end()) 
+		{
+			auto& pair = mMapCommandList[commandList];
+			ThrowIfFailed(pair.CommandAllocator->Reset());
+			ThrowIfFailed(pair.CommandList->Reset(pair.CommandAllocator.Get(), nullptr));
+			return true;
+		}
+		else 
+		{
+			return false;
+		}
+	}
+
+	bool CommandListAllocator::Free(ID3D12GraphicsCommandList* commandList)
 	{
 		std::scoped_lock<std::mutex> al(mLock);
 		if (mMapCommandList.find(commandList) != mMapCommandList.end())
@@ -61,6 +77,11 @@ namespace YD3D
 			ThrowIfFailed(pair.CommandAllocator->Reset());
 			ThrowIfFailed(pair.CommandList->Reset(pair.CommandAllocator.Get(), nullptr));
 			pair.Free = true;
+			return true;
+		}
+		else 
+		{
+			return false;
 		}
 	}
 }

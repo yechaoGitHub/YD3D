@@ -15,9 +15,7 @@ namespace YD3D
     typedef std::function<void(D3D12_COMMAND_LIST_TYPE, uint64_t)>	GraphicTaskCallbackFunction, CommandQueueCallbackFunction;
     typedef std::function<bool(ID3D12GraphicsCommandList*)> GraphicTaskFunction;
 
-    enum class ECommandQueueType { ERENDER, ECOPY, ECOMPUTE, ESWAP_CHAIN };
-    enum class EResourcePackageState { EINIT, EPOSTED, ERENDERING, ERENDERED };
-    enum class ESceneState { CLEAR, UPLOADING, DIRTY };
+    enum ECommandQueueType { ERENDER, ECOPY, ECOMPUTE, ESWAP_CHAIN };
     enum EShaderType { VS = 0, PS, DS, HS, GS };
 
     inline std::wstring _HLSL_FILE_PATH_ = L"Shader/";
