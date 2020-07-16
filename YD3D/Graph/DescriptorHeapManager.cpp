@@ -29,7 +29,7 @@ namespace YD3D
 		return true;
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::BindCbView(uint32_t index, const D3D12_CONSTANT_BUFFER_VIEW_DESC *view)
+	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::BindCbView(uint32_t index, GraphicResource* res, const D3D12_CONSTANT_BUFFER_VIEW_DESC *view)
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
@@ -42,15 +42,28 @@ namespace YD3D
 		bool occupied(false);
 		if (mCbvSrvUavHeap->IsOccupied(index, 1, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = mCbvSrvUavHeap->GetCpuHandle(index);
-		D3D12_RESOURCE_DESC desc = {};
-		mDevice->CreateConstantBufferView(view, handle);
-		mCbvSrvUavHeap->SetSlot(index, nullptr);
+		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mCbvSrvUavHeap->GetCpuHandle(index);
+		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mCbvSrvUavHeap->GetGpuHandle(index);
+		
+		mDevice->CreateConstantBufferView(view, cpuHandle);
+		mCbvSrvUavHeap->SetSlot(index, res);
 
-		return handle;
+		DescriptorHandle descHandle;
+		descHandle.mType = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		descHandle.mDescriptorHeap = mCbvSrvUavHeap;
+		descHandle.mCpuHandle = cpuHandle;
+		descHandle.mGpuHandle = gpuHandle;
+		descHandle.mSlotIndex = index;
+		if (view) 
+		{
+			descHandle.mView.ConstBufferView = *view;
+		}
+		res->InsertBindDescriptor(descHandle);
+
+		return cpuHandle;
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::BindCbView(uint32_t index, uint32_t count, const D3D12_CONSTANT_BUFFER_VIEW_DESC* vecView)
+	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::BindCbView(uint32_t index, uint32_t count, GraphicResource** res, const D3D12_CONSTANT_BUFFER_VIEW_DESC* vecView)
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
@@ -63,10 +76,10 @@ namespace YD3D
 		bool occupied(false);
 		if (mCbvSrvUavHeap->IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindCbView(index, &vecView[0]);
+		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindCbView(index, res[0], vecView);
 		for (UINT i = 1; i < count; i++)
 		{
-			BindCbView(index + i, &vecView[i]);
+			BindCbView(index + i, res[i], vecView ? (vecView + i) : nullptr);
 		}
 
 		return handle;
@@ -85,11 +98,25 @@ namespace YD3D
 		bool occupied(false);
 		if (mCbvSrvUavHeap->IsOccupied(index, 1, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = mCbvSrvUavHeap->GetCpuHandle(index);
+		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mCbvSrvUavHeap->GetCpuHandle(index);
+		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mCbvSrvUavHeap->GetGpuHandle(index);
 
-		mDevice->CreateShaderResourceView(res->Resource(), view, handle);
+		mDevice->CreateShaderResourceView(res->Resource(), view, cpuHandle);
 		mCbvSrvUavHeap->SetSlot(index, res);
-		return handle;
+
+		DescriptorHandle descHandle;
+		descHandle.mType = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		descHandle.mDescriptorHeap = mCbvSrvUavHeap;
+		descHandle.mCpuHandle = cpuHandle;
+		descHandle.mGpuHandle = gpuHandle;
+		descHandle.mSlotIndex = index;
+		if (view)
+		{
+			descHandle.mView.ShaderResourceView = *view;
+		}
+		res->InsertBindDescriptor(descHandle);
+
+		return cpuHandle;
 	}
 
 	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::BindSrView(uint32_t index, uint32_t count, GraphicResource* vecRes, const D3D12_SHADER_RESOURCE_VIEW_DESC* vecView)
@@ -105,10 +132,10 @@ namespace YD3D
 		bool occupied(false);
 		if (mCbvSrvUavHeap->IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindSrView(index, &vecRes[0], &vecView[0]);
+		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindSrView(index, &vecRes[0], vecView);
 		for (uint32_t i = 1; i < count; i++)
 		{
-			BindSrView(index + i, &vecRes[i], &vecView[i]);
+			BindSrView(index + i, &vecRes[i], vecView ? (vecView + i) : nullptr);
 		}
 
 		return handle;
@@ -127,14 +154,28 @@ namespace YD3D
 		bool occupied(false);
 		if (mCbvSrvUavHeap->IsOccupied(index, 1, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = mCbvSrvUavHeap->GetCpuHandle(index);
-		mDevice->CreateUnorderedAccessView(res->Resource(), countRes->Resource(), view, handle);
+		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mCbvSrvUavHeap->GetCpuHandle(index);
+		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mCbvSrvUavHeap->GetGpuHandle(index);
+
+		mDevice->CreateUnorderedAccessView(res->Resource(), countRes->Resource(), view, cpuHandle);
 		mCbvSrvUavHeap->SetSlot(index, res);
 
-		return handle;
+		DescriptorHandle descHandle;
+		descHandle.mType = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		descHandle.mDescriptorHeap = mCbvSrvUavHeap;
+		descHandle.mCpuHandle = cpuHandle;
+		descHandle.mGpuHandle = gpuHandle;
+		descHandle.mSlotIndex = index;
+		if (view)
+		{
+			descHandle.mView.UnorderedAccessView = *view;
+		}
+		res->InsertBindDescriptor(descHandle);
+
+		return cpuHandle;
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::BindUaView(uint32_t index, uint32_t count, GraphicResource* arrRes, GraphicResource* arrCountRes, const D3D12_UNORDERED_ACCESS_VIEW_DESC* vecView)
+	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::BindUaView(uint32_t index, uint32_t count, GraphicResource **arrRes, GraphicResource **arrCountRes, const D3D12_UNORDERED_ACCESS_VIEW_DESC* vecView)
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
@@ -147,10 +188,10 @@ namespace YD3D
 		bool occupied(false);
 		if (mCbvSrvUavHeap->IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindUaView(index, &arrRes[0], &arrCountRes[0], vecView);
+		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindUaView(index, arrRes[0], arrCountRes[0], vecView);
 		for (uint32_t i = 1; i < count; i++)
 		{
-			BindUaView(index + i, &arrRes[i], &arrCountRes[i], vecView);
+			BindUaView(index + i, arrRes[i], arrCountRes[i], vecView ? (vecView + i) : nullptr);
 		}
 		
 		return handle;
@@ -169,14 +210,28 @@ namespace YD3D
 		bool occupied(false);
 		if (mRtHeap->IsOccupied(index, 1, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = mRtHeap->GetCpuHandle(index);
-		mDevice->CreateRenderTargetView(res->Resource(), view, handle);
+		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mRtHeap->GetCpuHandle(index);
+		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mRtHeap->GetGpuHandle(index);
+
+		mDevice->CreateRenderTargetView(res->Resource(), view, cpuHandle);
 		mRtHeap->SetSlot(index, res);
 
-		return handle;
+		DescriptorHandle descHandle;
+		descHandle.mType = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		descHandle.mDescriptorHeap = mRtHeap;
+		descHandle.mCpuHandle = cpuHandle;
+		descHandle.mGpuHandle = gpuHandle;
+		descHandle.mSlotIndex = index;
+		if (view)
+		{
+			descHandle.mView.RenderTargetView = *view;
+		}
+		res->InsertBindDescriptor(descHandle);
+
+		return cpuHandle;
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::BindRtView(uint32_t index, uint32_t count, GraphicResource* arrRes, const D3D12_RENDER_TARGET_VIEW_DESC* view)
+	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::BindRtView(uint32_t index, uint32_t count, GraphicResource** arrRes, const D3D12_RENDER_TARGET_VIEW_DESC* vecView)
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
@@ -189,10 +244,10 @@ namespace YD3D
 		bool occupied(false);
 		if (mRtHeap->IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindRtView(index, &arrRes[0], &view[0]);
+		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindRtView(index, arrRes[0], vecView);
 		for (UINT i = 1; i < count; i++)
 		{
-			BindRtView(index + i, &arrRes[i], &view[i]);
+			BindRtView(index + i, arrRes[i], vecView ? (vecView + i) : nullptr);
 		}
 
 		return handle;
@@ -211,14 +266,27 @@ namespace YD3D
 		bool occupied(false);
 		if (mDsHeap->IsOccupied(index, 1, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = mDsHeap->GetCpuHandle(index);
-		mDevice->CreateDepthStencilView(res->Resource(), view, handle);
+		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mDsHeap->GetCpuHandle(index);
+		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mDsHeap->GetGpuHandle(index);
+		mDevice->CreateDepthStencilView(res->Resource(), view, cpuHandle);
 		mDsHeap->SetSlot(index, res);
 
-		return handle;
+		DescriptorHandle descHandle;
+		descHandle.mType = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		descHandle.mDescriptorHeap = mDsHeap;
+		descHandle.mCpuHandle = cpuHandle;
+		descHandle.mGpuHandle = gpuHandle;
+		descHandle.mSlotIndex = index;
+		if (view)
+		{
+			descHandle.mView.DepthStencilView = *view;
+		}
+		res->InsertBindDescriptor(descHandle);
+
+		return cpuHandle;
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::BindDsView(uint32_t index, uint32_t count, GraphicResource* arrRes, const D3D12_DEPTH_STENCIL_VIEW_DESC* view)
+	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::BindDsView(uint32_t index, uint32_t count, GraphicResource **arrRes, const D3D12_DEPTH_STENCIL_VIEW_DESC* vecView)
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
@@ -231,10 +299,10 @@ namespace YD3D
 		bool occupied(false);
 		if (mDsHeap->IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindDsView(index, &arrRes[0], &view[0]);
+		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindDsView(index, arrRes[0], vecView);
 		for (UINT i = 0; i < count; i++)
 		{
-			BindDsView(index + i, &arrRes[i], &view[i]);
+			BindDsView(index + i, arrRes[i], vecView ? (vecView + i) : nullptr);
 		}
 
 		return handle;

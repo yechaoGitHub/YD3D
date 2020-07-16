@@ -8,6 +8,10 @@ namespace YD3D
 
 	DescriptorHeap::~DescriptorHeap()
 	{
+		if (mDescriptorHeap) 
+		{
+			Release();
+		}
 	}
 
 	bool DescriptorHeap::Create(ID3D12Device* device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, uint32_t numDescriptors, D3D12_DESCRIPTOR_HEAP_FLAGS flags)
@@ -25,6 +29,17 @@ namespace YD3D
 		mIncreasement = device->GetDescriptorHandleIncrementSize(heapType);
 
 		return true;
+	}
+
+	void DescriptorHeap::Release()
+	{
+		mDescriptorHeap->Release();
+		mDevice = nullptr;
+		mDescriptorHeap = nullptr;
+		mDescriptorCount = 0;
+		mIncreasement = 0;
+		mMapSlot.clear();
+		mMapResource.clear();
 	}
 
 	ID3D12DescriptorHeap* DescriptorHeap::Descriptor() const
@@ -132,7 +147,7 @@ namespace YD3D
 		bool occupied(false);
 		if (IsOccupied(index, 1, &occupied) && occupied)
 		{
-			return mMapSlot[index];
+			return mMapSlot[index].get_raw_ptr();
 		}
 
 		return nullptr;
@@ -201,7 +216,7 @@ namespace YD3D
 
 	void DescriptorHeap::SetSlot(uint32_t index, GraphicResource* res)
 	{
-		mMapSlot[index] = res;
+		mMapSlot[index] = get_gc_ptr_from_raw(res);
 		mMapResource[res] = index; 
 	}
 };

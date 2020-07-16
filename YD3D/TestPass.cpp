@@ -7,25 +7,13 @@ const WCHAR* _PS_HLSL_NAME_ = L"ShapePs.hlsl";
 
 TestPass::TestPass()
 {
-
+	mArrShaderResPath[EShaderType::VS] = _HLSL_FILE_PATH_ + L"CommonVs.hlsl";
+	mArrShaderResPath[EShaderType::PS] = _HLSL_FILE_PATH_ + L"ShapePs.hlsl";
 }
 
 TestPass::~TestPass()
 {
 
-}
-
-bool TestPass::Create(ID3D12Device* device, const TestPassInitParam* initParam)
-{
-	mDevice = device;
-	mInitParam = *initParam;
-
-	SerializeRootSignature();
-	BuildRootSignature();
-	BuildShaderResource();
-	BuildPSO();
-
-	return true;
 }
 
 bool TestPass::PopulateCommandList(YD3D::ResourcePackage* package, ID3D12GraphicsCommandList* commandList)
@@ -69,47 +57,6 @@ bool TestPass::SerializeRootSignature()
 	{
 		::OutputDebugStringA((char*)errorBlob->GetBufferPointer());
 	}
-
-	return true;
-}
-
-bool TestPass::BuildRootSignature()
-{
-	void* serializedBlob = mSerializedRootSignature->GetBufferPointer();
-	UINT serializedSize = mSerializedRootSignature->GetBufferSize();
-	ThrowIfFailed(mDevice->CreateRootSignature(0, serializedBlob, serializedSize, IID_PPV_ARGS(&mRootSignature)));
-	return true;
-}
-
-bool TestPass::BuildPSO()
-{
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {};
-	desc.InputLayout = { mInitParam.InputLayout.data(), (UINT)mInitParam.InputLayout.size() };
-	desc.pRootSignature = mRootSignature.Get();
-	desc.VS = { mArrShaderRes[EShaderType::VS]->GetBufferPointer(), mArrShaderRes[EShaderType::VS]->GetBufferSize() };
-	desc.PS = { mArrShaderRes[EShaderType::PS]->GetBufferPointer(), mArrShaderRes[EShaderType::PS]->GetBufferSize() };
-	desc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	desc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	desc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	desc.SampleMask = UINT_MAX;
-	desc.PrimitiveTopologyType = mInitParam.PrimitiveType;
-	desc.NumRenderTargets = mInitParam.RenderTargetFormat.size();
-	desc.RTVFormats[0] = mInitParam.RenderTargetFormat[0];
-	desc.DSVFormat = mInitParam.DepthStencilFormat;
-	desc.SampleDesc.Count = 1;
-
-	ThrowIfFailed(mDevice->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&mPSO)));
-
-	return true;
-}
-
-bool TestPass::BuildShaderResource()
-{
-	std::wstring VsPath = _HLSL_FILE_PATH_ + std::wstring(_VS_HLSL_NAME_);
-	std::wstring PsPath = _HLSL_FILE_PATH_ + std::wstring(_PS_HLSL_NAME_);
-
-	mArrShaderRes[EShaderType::VS] = CompileShader(VsPath.c_str(), nullptr, "VS", "vs_5_1");
-	mArrShaderRes[EShaderType::PS] = CompileShader(PsPath.c_str(), nullptr, "PS", "ps_5_1");
 
 	return true;
 }

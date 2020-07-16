@@ -1,6 +1,6 @@
 #include "Common.hlsl"
 
-VertexOut VS(VertexIn Vin)
+VertexOut main(VertexIn Vin)
 {
     VertexOut Vout = (VertexOut) 0.0;
     float4x4 ViewProjectMat = mul(Project, View);

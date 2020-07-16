@@ -43,7 +43,7 @@ private:
 
 	TestPipeLine						mPipeLine;
 	gc_ptr<YD3D::Scene>					mScene;
-	gc_ptr<YD3D::ResourcePackage>		mPackage;
+	gc_ptr<TestResourcePackage>			mPackage;
 	gc_ptr<YD3D::GraphicDepthStencil>	mDs;
 	POINT								mLastMousePos;
 

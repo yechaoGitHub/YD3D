@@ -15,8 +15,8 @@ TestPipeLine::~TestPipeLine()
 
 bool TestPipeLine::Create(ID3D12Device* device, const YD3D::PipeLineInitParam* pipeLineInitParam) 
 {
-	TestPassInitParam passInitParam;
-	mPass.Create(device, &passInitParam);
+	mPass.Create(device);
+	mDepthPass.Create(device);
 	Super::Create(device, pipeLineInitParam);
 
 	return true;
@@ -26,15 +26,16 @@ bool TestPipeLine::SetScene(Scene* scene)
 {
 	mScene = get_gc_ptr_from_raw(scene);
 	mPass.SetScene(scene);
+	mDepthPass.SetScene(scene);
 	return true;
 }
 
-bool TestPipeLine::Draw(YD3D::ResourcePackage *package)
+bool TestPipeLine::Draw(TestResourcePackage *package)
 {
 	uint64_t feneValue(0);
 
 	package->State.set_state(EResourcePackageState::ERENDERING);
-
+	
 	ResetCommand();
 	PopulateCommandList(package, mCommandList.Get());
 	mCommandList->Close();
@@ -48,16 +49,18 @@ bool TestPipeLine::Draw(YD3D::ResourcePackage *package)
 }
 
 
-bool TestPipeLine::PopulateCommandList(YD3D::ResourcePackage *package, ID3D12GraphicsCommandList* commandList)
+bool TestPipeLine::PopulateCommandList(TestResourcePackage* package, ID3D12GraphicsCommandList* commandList)
 {
 	PopulateBeginPipeLine(package, commandList);
-	mPass.PopulateCommandList(package, commandList);
+	//mPass.PopulateCommandList(package, commandList);
+	mDepthPass.PopulateCommandList(&package->DepthItem, commandList);
+
 	PopulateEndPipeLine(package, commandList);
 
 	return true;
 }
 
-bool TestPipeLine::PopulateCommandListGC(gc_ptr<YD3D::ResourcePackage> package, ID3D12GraphicsCommandList* commandList)
+bool TestPipeLine::PopulateCommandListGC(gc_ptr<TestResourcePackage> package, ID3D12GraphicsCommandList* commandList)
 {
 	PopulateBeginPipeLine(package.get_raw_ptr(), commandList);
 	mPass.PopulateCommandList(package.get_raw_ptr(), commandList);
@@ -66,51 +69,7 @@ bool TestPipeLine::PopulateCommandListGC(gc_ptr<YD3D::ResourcePackage> package, 
 	return true;
 }
 
-bool TestPipeLine::PostToCommandQueue(ECommandQueueType type, YD3D::ResourcePackage* package, PopulateCommandListFunction func, uint64_t* fence)
-{
-	GraphicTaskFunction&& task = std::bind(func, this, package, std::placeholders::_1);
-	return GraphicTask::PostGraphicTask(type, std::move(task), fence);
-}
-
-bool TestPipeLine::PostToCommandQueue(ECommandQueueType type, YD3D::ResourcePackage* package, PopulateCommandListFunction func, uint64_t* fence, GraphicTaskCallbackFunction&& callback)
-{
-	GraphicTaskFunction&& task = std::bind(func, this, package, std::placeholders::_1);
-	return GraphicTask::PostGraphicTask(type, std::move(task), fence, std::move(callback));
-}
-
-bool TestPipeLine::PostToCommandQueue(ECommandQueueType type, YD3D::ResourcePackage* package, GraphicTaskFunction&& func, uint64_t* fence)
-{
-	return GraphicTask::PostGraphicTask(type, std::move(func), fence);
-}
-
-bool TestPipeLine::PostToCommandQueue(ECommandQueueType type, YD3D::ResourcePackage* package, GraphicTaskFunction&& func, uint64_t* fence, GraphicTaskCallbackFunction&& callback)
-{
-	return GraphicTask::PostGraphicTask(type, std::move(func), fence, std::move(callback));
-}
-
-bool TestPipeLine::PostToCommandQueueGC(ECommandQueueType type, gc_ptr<YD3D::ResourcePackage> package, PopulateCommandListFunctionGC func, uint64_t* fence)
-{
-	GraphicTaskFunction&& task = std::bind(func, this, package, std::placeholders::_1);
-	return 	GraphicTask::PostGraphicTask(type, std::move(task), fence);
-}
-
-bool TestPipeLine::PostToCommandQueueGC(ECommandQueueType type, gc_ptr<YD3D::ResourcePackage> package, PopulateCommandListFunctionGC func, uint64_t* fence, GraphicTaskCallbackFunction&& callback)
-{
-	GraphicTaskFunction&& task = std::bind(func, this, package, std::placeholders::_1);
-	return GraphicTask::PostGraphicTask(type, std::move(task), fence, std::move(callback));
-}
-
-bool TestPipeLine::PostToCommandQueueGC(ECommandQueueType type, gc_ptr<YD3D::ResourcePackage> package, GraphicTaskFunction&& func, uint64_t* fence)
-{
-	return GraphicTask::PostGraphicTask(type, std::move(func), fence);
-}
-
-bool TestPipeLine::PostToCommandQueueGC(ECommandQueueType type, gc_ptr<YD3D::ResourcePackage> package, GraphicTaskFunction&& func, uint64_t* fence, GraphicTaskCallbackFunction&& callback)
-{
-	return GraphicTask::PostGraphicTask(type, std::move(func), fence, std::move(callback));
-}
-
-bool TestPipeLine::PopulateBeginPipeLine(YD3D::ResourcePackage* package, ID3D12GraphicsCommandList* commandList)
+bool TestPipeLine::PopulateBeginPipeLine(TestResourcePackage* package, ID3D12GraphicsCommandList* commandList)
 {
 	commandList->RSSetViewports(1, &mViewport);
 	commandList->RSSetScissorRects(1, &mScissorRect);
@@ -126,7 +85,7 @@ bool TestPipeLine::PopulateBeginPipeLine(YD3D::ResourcePackage* package, ID3D12G
 	return true;
 }
 
-bool TestPipeLine::PopulateEndPipeLine(YD3D::ResourcePackage* package, ID3D12GraphicsCommandList* commandList)
+bool TestPipeLine::PopulateEndPipeLine(TestResourcePackage* package, ID3D12GraphicsCommandList* commandList)
 {
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(package->RT->Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON));
 	return true;

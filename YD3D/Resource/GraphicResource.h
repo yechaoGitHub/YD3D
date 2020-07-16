@@ -5,6 +5,8 @@ namespace YD3D
 {
 	typedef std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> vecFootPrint;
 
+	class DescriptorHeap;
+
 	struct CopyableFootPrint
 	{
 		uint32_t			numRows;
@@ -13,8 +15,39 @@ namespace YD3D
 		vecFootPrint		footPrints;
 	};
 	
+	union ResourceView
+	{
+		D3D12_CONSTANT_BUFFER_VIEW_DESC		ConstBufferView;
+		D3D12_SHADER_RESOURCE_VIEW_DESC		ShaderResourceView;
+		D3D12_UNORDERED_ACCESS_VIEW_DESC	UnorderedAccessView;
+		D3D12_RENDER_TARGET_VIEW_DESC		RenderTargetView;
+		D3D12_DEPTH_STENCIL_VIEW_DESC		DepthStencilView;
+	};
+
+	struct DescriptorHandle
+	{
+		DescriptorHandle() :
+			mType(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV),
+			mSlotIndex(0),
+			mCpuHandle({0}),
+			mGpuHandle({0}),
+			mView({})
+		{
+		}
+
+		D3D12_DESCRIPTOR_HEAP_TYPE		mType;
+		gc_ptr<DescriptorHeap>			mDescriptorHeap;
+		uint32_t						mSlotIndex;
+		D3D12_CPU_DESCRIPTOR_HANDLE		mCpuHandle;
+		D3D12_GPU_DESCRIPTOR_HANDLE		mGpuHandle;
+		ResourceView					mView;
+	};
+
 	class GraphicResource : public virtual enable_gc_ptr_form_raw
 	{
+		typedef std::array<std::vector<DescriptorHandle>, 5> DescriptorHandleContainer;
+		friend class DescriptorHeapManager;
+
 	public:
 		enum { need_clear_up_gc_ptr = 0 };
 
@@ -38,7 +71,14 @@ namespace YD3D
 		void* Map(uint32_t subResources, const D3D12_RANGE* range);
 		void Unmap(uint32_t subResources, const D3D12_RANGE* range);
 
+		D3D12_CPU_DESCRIPTOR_HANDLE GetCpuDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t index = 0);
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGpuDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t index = 0);
+
 	private:
-		ID3D12Resource* mResource;
+		ID3D12Resource*				mResource;
+		DescriptorHandleContainer	mBindDescriptor;
+
+		void InsertBindDescriptor(const DescriptorHandle& descriptorHandle);
+
 	};
 };

@@ -14,6 +14,7 @@ namespace YD3D
 		~DescriptorHeap();
 
 		bool Create(ID3D12Device* Device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, uint32_t numDescriptors, D3D12_DESCRIPTOR_HEAP_FLAGS flags);
+		void Release();
 		ID3D12DescriptorHeap* Descriptor() const;
 		uint32_t GetHandleIncreasement();
 		D3D12_DESCRIPTOR_HEAP_DESC GetDesc();
@@ -36,7 +37,7 @@ namespace YD3D
 		ID3D12DescriptorHeap*									mDescriptorHeap;
 		uint32_t												mDescriptorCount;
 		uint32_t												mIncreasement;
-		std::unordered_map<uint32_t, GraphicResource*>			mMapSlot;
+		std::unordered_map<uint32_t, gc_ptr<GraphicResource>>	mMapSlot;
 		std::unordered_map<GraphicResource*, uint32_t>			mMapResource;
 
 		void SetSlot(uint32_t index, GraphicResource* res);

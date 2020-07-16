@@ -238,7 +238,7 @@ void TestWindow::InitResource()
 	}
 	mDsHandle = DescriptorHeapManager::GobalDescriptorHeapManager()->BindDsView(ANY_DESCRIPTOR_HEAP_POS, mDs.get_raw_ptr(), nullptr);
 
-	mPackage.assign(new ResourcePackage);
+	mPackage.assign(new TestResourcePackage);
 	mPackage->DS = mDs;
 	mPackage->DsHandle = mDsHandle;
 	mPackage->State.set_state(EResourcePackageState::EINIT);
@@ -255,7 +255,8 @@ void TestWindow::ResourcePackageCallback(YD3D::EResourcePackageState beforeState
 		uint64_t rtIndex = mSwapChain.GetCurBackBufferIndex();
 		mPackage->RT = get_gc_ptr_from_raw(mSwapChain.GetCurBackBuffer());
 		mPackage->RtHandle = mRtHandle[rtIndex];
-
+		mPackage->DepthItem.RT = mPackage->RT;
+		mPackage->DepthItem.RtHandle = mPackage->RtHandle;
 		Update();
 	}
 	else if (afterState == YD3D::EResourcePackageState::ERENDERED) 

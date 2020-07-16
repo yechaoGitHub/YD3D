@@ -2,41 +2,36 @@
 #include "PipeLine/PipeLineTemplate.hpp"
 #include "PipeLine/ResourcePackage.h"
 #include "TestPass.h"
+#include "DepthPass.h"
 
 class TestPipeLine;
 
-typedef YD3D::PipeLineTemplate<YD3D::ResourcePackage, YD3D::PipeLineInitParam> Super;
-typedef bool (TestPipeLine::*PopulateCommandListFunction) (YD3D::ResourcePackage*, ID3D12GraphicsCommandList*);
-typedef bool (TestPipeLine::* PopulateCommandListFunctionGC) (gc_ptr<YD3D::ResourcePackage>, ID3D12GraphicsCommandList*);
 
-class TestPipeLine : public YD3D::PipeLineTemplate<YD3D::ResourcePackage, YD3D::PipeLineInitParam>
+struct TestResourcePackage : public YD3D::ResourcePackage
 {
+	DepthPassRenderItem DepthItem;
+};
+
+class TestPipeLine : public YD3D::PipeLineTemplate<TestResourcePackage, YD3D::PipeLineInitParam>
+{
+	typedef YD3D::PipeLineTemplate<TestResourcePackage, YD3D::PipeLineInitParam> Super;
 public:
 	TestPipeLine();
 	~TestPipeLine();
 
 	bool Create(ID3D12Device* device, const YD3D::PipeLineInitParam* pipeLineInitParam) override;
 	bool SetScene(YD3D::Scene* scene) override;
-	bool Draw(YD3D::ResourcePackage *package) override;
+	bool Draw(TestResourcePackage*package) override;
 
 protected:
-	bool PopulateCommandList(YD3D::ResourcePackage *package, ID3D12GraphicsCommandList* commandlist) override;
-	bool PopulateCommandListGC(gc_ptr<YD3D::ResourcePackage> package, ID3D12GraphicsCommandList* commandlist);
+	bool PopulateCommandList(TestResourcePackage* package, ID3D12GraphicsCommandList* commandlist) override;
+	bool PopulateCommandListGC(gc_ptr<TestResourcePackage> package, ID3D12GraphicsCommandList* commandlist) override;
 
-	bool PostToCommandQueue(YD3D::ECommandQueueType type, YD3D::ResourcePackage* package, PopulateCommandListFunction func, uint64_t* fence);
-	bool PostToCommandQueue(YD3D::ECommandQueueType type, YD3D::ResourcePackage* package, PopulateCommandListFunction func, uint64_t *fence, YD3D::GraphicTaskCallbackFunction &&callback);
-	bool PostToCommandQueue(YD3D::ECommandQueueType type, YD3D::ResourcePackage* package, YD3D::GraphicTaskFunction &&func, uint64_t* fence);
-	bool PostToCommandQueue(YD3D::ECommandQueueType type, YD3D::ResourcePackage* package, YD3D::GraphicTaskFunction &&func, uint64_t *fence, YD3D::GraphicTaskCallbackFunction&& callback);
+	bool PopulateBeginPipeLine(TestResourcePackage* package, ID3D12GraphicsCommandList* commandList);
+	bool PopulateEndPipeLine(TestResourcePackage* package, ID3D12GraphicsCommandList* commandList);
 
-	bool PostToCommandQueueGC(YD3D::ECommandQueueType type, gc_ptr<YD3D::ResourcePackage> package, PopulateCommandListFunctionGC func, uint64_t* fence);
-	bool PostToCommandQueueGC(YD3D::ECommandQueueType type, gc_ptr<YD3D::ResourcePackage> package, PopulateCommandListFunctionGC func, uint64_t* fence, YD3D::GraphicTaskCallbackFunction&& callback);
-	bool PostToCommandQueueGC(YD3D::ECommandQueueType type, gc_ptr<YD3D::ResourcePackage> package, YD3D::GraphicTaskFunction&& func, uint64_t* fence);
-	bool PostToCommandQueueGC(YD3D::ECommandQueueType type, gc_ptr<YD3D::ResourcePackage> package, YD3D::GraphicTaskFunction&& func, uint64_t* fence, YD3D::GraphicTaskCallbackFunction&& callback);
-
-	bool PopulateBeginPipeLine(YD3D::ResourcePackage* package, ID3D12GraphicsCommandList* commandList);
-	bool PopulateEndPipeLine(YD3D::ResourcePackage* package, ID3D12GraphicsCommandList* commandList);
-
-	TestPass mPass;
+	TestPass	mPass;
+	DepthPass	mDepthPass;
 
 };
 

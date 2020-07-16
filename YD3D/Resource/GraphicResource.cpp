@@ -127,5 +127,19 @@ namespace YD3D
 		mResource->Unmap(subResources, range);
 	}
 
+	D3D12_CPU_DESCRIPTOR_HANDLE GraphicResource::GetCpuDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t index)
+	{
+		return mBindDescriptor[type][index].mCpuHandle;
+	}
+
+	D3D12_GPU_DESCRIPTOR_HANDLE GraphicResource::GetGpuDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t index)
+	{
+		return  mBindDescriptor[type][index].mGpuHandle;
+	}
+
+	void GraphicResource::InsertBindDescriptor(const DescriptorHandle& descriptorHandle)
+	{
+		mBindDescriptor[descriptorHandle.mType].push_back(descriptorHandle);
+	}
 };
 

@@ -145,6 +145,7 @@
     <ClCompile Include="..\GC\GC\gc_ptr_node_container.cpp" />
     <ClCompile Include="..\GC\GC\gc_scan_thread.cpp" />
     <ClCompile Include="..\GC\GC\gc_tref.cpp" />
+    <ClCompile Include="DepthPass.cpp" />
     <ClCompile Include="Graph\CommandListAllocator.cpp" />
     <ClCompile Include="Graph\CommandQueue.cpp" />
     <ClCompile Include="Graph\DescriptorHeap.cpp" />
@@ -205,6 +206,7 @@
     <ClInclude Include="..\GC\GC\gc_ptr_node_container.h" />
     <ClInclude Include="..\GC\GC\gc_scan_thread.h" />
     <ClInclude Include="..\GC\GC\gc_tref.h" />
+    <ClInclude Include="DepthPass.h" />
     <ClInclude Include="Graph\CommandListAllocator.h" />
     <ClInclude Include="Graph\CommandQueue.h" />
     <ClInclude Include="Graph\DescriptorHeap.h" />
@@ -249,6 +251,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shader\CommonVs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shader\DepthPassPs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shader\DepthPassVs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shader\ShapePs.hlsl">

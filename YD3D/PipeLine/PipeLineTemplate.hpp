@@ -39,11 +39,14 @@ namespace YD3D
 			return true;
 		}
 
-		virtual bool Create(ID3D12Device* device, const TPipeLineInitParam *pipeLineInitParam) 
+		virtual bool Create(ID3D12Device* device, const TPipeLineInitParam *pipeLineInitParam = nullptr) 
 		{
 			mDevice = device;
-			mInitParam = *pipeLineInitParam;
-
+			if (pipeLineInitParam) 
+			{
+				mInitParam = *pipeLineInitParam;
+			}
+			
 			InitViewPort();
 
 			ThrowIfFailed(mDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&mCommandAllocator)));
@@ -52,6 +55,16 @@ namespace YD3D
 
 			mWorkhread.run_loop(&PipeLineTemplate::ProcessResourcePackageFunction, this);
 
+			return true;
+		}
+
+		virtual bool PopulateCommandList(TResourcePackage* package, ID3D12GraphicsCommandList* commandlist)
+		{
+			return true;
+		}
+
+		virtual bool PopulateCommandListGC(gc_ptr<TResourcePackage> package, ID3D12GraphicsCommandList* commandlist)
+		{
 			return true;
 		}
 
@@ -67,14 +80,9 @@ namespace YD3D
 		
 		virtual bool Draw(TResourcePackage* package)
 		{
-			return false;
+			return true;
 		}
 
-		virtual bool PopulateCommandList(TResourcePackage *package, ID3D12GraphicsCommandList *commandlist)
-		{
-			return false;
-		}
-		
 	protected:
 		ID3D12Device*										mDevice;
 		D3D12_VIEWPORT										mViewport;
@@ -104,7 +112,7 @@ namespace YD3D
 				if (mIdleCount > 20)
 				{
 					std::unique_lock<std::mutex> ulock(mDrawLock);
-					mDrawConVar.wait(ulock, [this] {return mIdleCount == 0; });
+					mDrawConVar.wait(ulock, [this] { return mPackageQueue.size(); });
 				}
 			}
 		}

@@ -13,20 +13,20 @@ namespace YD3D
 
 		bool Create(ID3D12Device* device, uint32_t count);
 
-		D3D12_CPU_DESCRIPTOR_HANDLE BindCbView(uint32_t index, const D3D12_CONSTANT_BUFFER_VIEW_DESC *view);
-		D3D12_CPU_DESCRIPTOR_HANDLE BindCbView(uint32_t index, uint32_t count, const D3D12_CONSTANT_BUFFER_VIEW_DESC* vecView);
+		D3D12_CPU_DESCRIPTOR_HANDLE BindCbView(uint32_t index, GraphicResource *res, const D3D12_CONSTANT_BUFFER_VIEW_DESC *view);
+		D3D12_CPU_DESCRIPTOR_HANDLE BindCbView(uint32_t index, uint32_t count, GraphicResource** res, const D3D12_CONSTANT_BUFFER_VIEW_DESC* vecView);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE BindSrView(uint32_t index, GraphicResource *res, const D3D12_SHADER_RESOURCE_VIEW_DESC *view);
 		D3D12_CPU_DESCRIPTOR_HANDLE BindSrView(uint32_t index, uint32_t count, GraphicResource* vecRes, const D3D12_SHADER_RESOURCE_VIEW_DESC *vecView);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE BindUaView(uint32_t index, GraphicResource *res, GraphicResource *countRes, const D3D12_UNORDERED_ACCESS_VIEW_DESC *view);
-		D3D12_CPU_DESCRIPTOR_HANDLE BindUaView(uint32_t index, uint32_t count,  GraphicResource* arrRes, GraphicResource* arrCountRes, const D3D12_UNORDERED_ACCESS_VIEW_DESC* vecView);
+		D3D12_CPU_DESCRIPTOR_HANDLE BindUaView(uint32_t index, uint32_t count,  GraphicResource** arrRes, GraphicResource** arrCountRes, const D3D12_UNORDERED_ACCESS_VIEW_DESC* vecView);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE BindRtView(uint32_t index, GraphicResource *res, const D3D12_RENDER_TARGET_VIEW_DESC *view);
-		D3D12_CPU_DESCRIPTOR_HANDLE BindRtView(uint32_t index, uint32_t count, GraphicResource* arrRes, const D3D12_RENDER_TARGET_VIEW_DESC* view);
+		D3D12_CPU_DESCRIPTOR_HANDLE BindRtView(uint32_t index, uint32_t count, GraphicResource** arrRes, const D3D12_RENDER_TARGET_VIEW_DESC* view);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE BindDsView(uint32_t index, GraphicResource *res, const D3D12_DEPTH_STENCIL_VIEW_DESC *view);
-		D3D12_CPU_DESCRIPTOR_HANDLE BindDsView(uint32_t index, uint32_t count, GraphicResource* arrRes, const D3D12_DEPTH_STENCIL_VIEW_DESC* view);
+		D3D12_CPU_DESCRIPTOR_HANDLE BindDsView(uint32_t index, uint32_t count, GraphicResource** arrRes, const D3D12_DEPTH_STENCIL_VIEW_DESC* view);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCpuHandle(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t Index = 0);
 		D3D12_GPU_DESCRIPTOR_HANDLE GetGpuHandle(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t Index = 0);

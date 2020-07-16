@@ -21,14 +21,9 @@ public:
 	TestPass();
 	~TestPass();
 
-	bool Create(ID3D12Device* device, const TestPassInitParam* initParam) override;
 	bool PopulateCommandList(YD3D::ResourcePackage* package, ID3D12GraphicsCommandList* commandList) override;
 
 protected:
-
 	bool SerializeRootSignature();
-	bool BuildRootSignature();
-	bool BuildPSO();
-	bool BuildShaderResource();
 };
 
