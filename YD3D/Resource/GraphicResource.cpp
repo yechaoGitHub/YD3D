@@ -134,12 +134,13 @@ namespace YD3D
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GraphicResource::GetGpuDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t index)
 	{
-		return  mBindDescriptor[type][index].mGpuHandle;
+		return mBindDescriptor[type][index].mGpuHandle;
 	}
 
 	void GraphicResource::InsertBindDescriptor(const DescriptorHandle& descriptorHandle)
 	{
-		mBindDescriptor[descriptorHandle.mType].push_back(descriptorHandle);
+		DescriptorHandle &memDesc = mBindDescriptor[descriptorHandle.mType].emplace_back(descriptorHandle);
+		get_gc_ptr_from_raw(this).add_member_ptr(memDesc.mDescriptorHeap);
 	}
 };
 

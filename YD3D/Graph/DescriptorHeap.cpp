@@ -218,5 +218,6 @@ namespace YD3D
 	{
 		mMapSlot[index] = get_gc_ptr_from_raw(res);
 		mMapResource[res] = index; 
+		get_gc_ptr_from_raw(this).add_member_ptr(mMapSlot[index]);
 	}
 };
