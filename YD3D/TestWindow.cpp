@@ -36,21 +36,11 @@ uint32_t TestWindow::Run()
 
 	while (msg.message != WM_QUIT)
 	{
-		// If there are Window messages then process them.
 		if (PeekMessage(&msg, 0, 0, 0, PM_REMOVE))
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		//else
-		//{
-		//	mTimer.Tick();
-		//	CalculateFrameStats();
-
-		//	//mSwapChain.Present(0, 0);
-		//	mPipeLine.Draw(mPackage.get_raw_ptr());
-
-		//}
 	}
 
 	return (int)msg.wParam;
@@ -117,37 +107,6 @@ void TestWindow::OnMouseDown(YD3D::EMouseKey btnState, uint32_t x, uint32_t y)
 	mLastMousePos.y = y;
 	::SetCapture(GetHandle());
 }
-
-//void TestWindow::OnKeyUp(YD3D::VirtualKey key, YD3D::VirtualKeyState keyState)
-//{
-//	uint64_t curTick = mTimer.Tick();
-//
-//	if (mScene->State.null_and_add(ESceneState::UPLOADING, ESceneState::UPDATING))
-//	{
-//		switch (key)
-//		{
-//		case 'W':
-//			mScene->GetCamera().Walk(0.1);
-//			break;
-//		case 'S':
-//			mScene->GetCamera().Walk(-0.1);
-//			break;
-//		case 'A':
-//			mScene->GetCamera().Strafe(-0.1);
-//			break;
-//		case 'D':
-//			mScene->GetCamera().Strafe(0.1);
-//			break;
-//		}
-//
-//		mScene->State.has_and_add(ESceneState::UPDATING, ESceneState::DIRTY);
-//	}
-//}
-
-//LRESULT TestWindow::MainWndProc(UINT msg, WPARAM wParam, LPARAM lParam)
-//{
-//	return DefWindowProc(GetHandle(), msg, wParam, lParam);
-//}
 
 void TestWindow::InitD3D()
 {
@@ -218,6 +177,11 @@ void TestWindow::InitScence()
 		20, 22, 23,
 	};
 
+	mImages[EBASE_COLOR].OpenImageFile(L"DemoResource/rustediron2_basecolor.png");
+	mImages[EMETALLIC].OpenImageFile(L"DemoResource/rustediron2_metallic.png");
+	mImages[ENORMAL].OpenImageFile(L"DemoResource/rustediron2_normal.png");
+	mImages[EROUGHNESS].OpenImageFile(L"DemoResource/rustediron2_roughness.png");
+
 	gc_ptr<Model> model;
 	model.assign(new Model);
 	mScene.assign(new Scene);
@@ -225,6 +189,22 @@ void TestWindow::InitScence()
 	model->Create(_D3D12DEVICE_, vecVertex, vecIndex);
 	mScene->Create(_D3D12DEVICE_);
 	mScene->AddModel(model.get_raw_ptr());
+
+	model->UpdateTexture(mImages, 4);
+
+	uint64_t fenceValue(0);
+	GraphicTask::PostGraphicTask(ECommandQueueType::ECOPY, [model](ID3D12GraphicsCommandList* commandList) mutable {model->UpdateGraphicResource(commandList); return true; }, &fenceValue);
+	GraphicTask::WaitForGraphicTaskCompletion(ECommandQueueType::ECOPY, fenceValue);
+
+	GraphicResource* arrGpuRes[] = {
+		model->GraphicResource().mTextures[0].get_raw_ptr(),
+		model->GraphicResource().mTextures[1].get_raw_ptr(),
+		model->GraphicResource().mTextures[2].get_raw_ptr(),
+		model->GraphicResource().mTextures[3].get_raw_ptr(),
+	};
+
+	DescriptorHeapManager::GobalDescriptorHeapManager()->BindSrView(ANY_DESCRIPTOR_HEAP_POS, 4, arrGpuRes, nullptr);
+
 	mScene->UpdateGraphicResource(true);
 }
 
@@ -240,7 +220,7 @@ void TestWindow::InitResource()
 
 	mPackage.assign(new TestResourcePackage);
 	mPackage->DS = mDs;
-	mPackage->DsHandle = mDsHandle;
+	mPackage->DsHandle = mDs->GetCpuDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 0);
 	mPackage->State.set_state(EResourcePackageState::EINIT);
 	mPackage->State.bind_callback(std::bind(&TestWindow::ResourcePackageCallback, this, std::placeholders::_1, std::placeholders::_2));
 
@@ -252,11 +232,13 @@ void TestWindow::ResourcePackageCallback(YD3D::EResourcePackageState beforeState
 {
 	if (afterState == YD3D::EResourcePackageState::ERENDERING) 
 	{
+		gc_ptr<GraphicRenderTarget> gcRt = get_gc_ptr_from_raw(mSwapChain.GetCurBackBuffer());
+		D3D12_CPU_DESCRIPTOR_HANDLE rtHandle = gcRt->GetCpuDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 0);
 		uint64_t rtIndex = mSwapChain.GetCurBackBufferIndex();
-		mPackage->RT = get_gc_ptr_from_raw(mSwapChain.GetCurBackBuffer());
-		mPackage->RtHandle = mRtHandle[rtIndex];
-		mPackage->DepthItem.RT = mPackage->RT;
-		mPackage->DepthItem.RtHandle = mPackage->RtHandle;
+		mPackage->RT = gcRt;
+		mPackage->RtHandle = rtHandle;
+		mPackage->DepthItem.RT = gcRt;
+		mPackage->DepthItem.RtHandle = rtHandle;
 		Update();
 	}
 	else if (afterState == YD3D::EResourcePackageState::ERENDERED) 

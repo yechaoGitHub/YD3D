@@ -52,8 +52,8 @@ bool TestPipeLine::Draw(TestResourcePackage *package)
 bool TestPipeLine::PopulateCommandList(TestResourcePackage* package, ID3D12GraphicsCommandList* commandList)
 {
 	PopulateBeginPipeLine(package, commandList);
-	//mPass.PopulateCommandList(package, commandList);
-	mDepthPass.PopulateCommandList(&package->DepthItem, commandList);
+	mPass.PopulateCommandList(package, commandList);
+	//mDepthPass.PopulateCommandList(&package->DepthItem, commandList);
 
 	PopulateEndPipeLine(package, commandList);
 

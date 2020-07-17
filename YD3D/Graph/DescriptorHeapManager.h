@@ -17,7 +17,7 @@ namespace YD3D
 		D3D12_CPU_DESCRIPTOR_HANDLE BindCbView(uint32_t index, uint32_t count, GraphicResource** res, const D3D12_CONSTANT_BUFFER_VIEW_DESC* vecView);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE BindSrView(uint32_t index, GraphicResource *res, const D3D12_SHADER_RESOURCE_VIEW_DESC *view);
-		D3D12_CPU_DESCRIPTOR_HANDLE BindSrView(uint32_t index, uint32_t count, GraphicResource* vecRes, const D3D12_SHADER_RESOURCE_VIEW_DESC *vecView);
+		D3D12_CPU_DESCRIPTOR_HANDLE BindSrView(uint32_t index, uint32_t count, GraphicResource** vecRes, const D3D12_SHADER_RESOURCE_VIEW_DESC *vecView);
 
 		D3D12_CPU_DESCRIPTOR_HANDLE BindUaView(uint32_t index, GraphicResource *res, GraphicResource *countRes, const D3D12_UNORDERED_ACCESS_VIEW_DESC *view);
 		D3D12_CPU_DESCRIPTOR_HANDLE BindUaView(uint32_t index, uint32_t count,  GraphicResource** arrRes, GraphicResource** arrCountRes, const D3D12_UNORDERED_ACCESS_VIEW_DESC* vecView);

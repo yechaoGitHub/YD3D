@@ -153,6 +153,7 @@
     <ClCompile Include="Graph\DxFactory.cpp" />
     <ClCompile Include="Graph\GraphicTask.cpp" />
     <ClCompile Include="Graph\SwapChain.cpp" />
+    <ClCompile Include="Helper\WICImage.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PipeLine\ResourcePackage.cpp" />
     <ClCompile Include="Resource\GraphicDepthStencil.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="Graph\DxFactory.h" />
     <ClInclude Include="Graph\GraphicTask.h" />
     <ClInclude Include="Graph\SwapChain.h" />
+    <ClInclude Include="Helper\WICImage.h" />
     <ClInclude Include="PipeLine\PassTemplate.hpp" />
     <ClInclude Include="PipeLine\PipeLineTemplate.hpp" />
     <ClInclude Include="PipeLine\ResourcePackage.h" />

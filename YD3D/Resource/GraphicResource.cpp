@@ -70,7 +70,7 @@ namespace YD3D
 		return heapProperties;
 	}
 
-	void GraphicResource::GetFootPrint(CopyableFootPrint& footPrint) const
+	void GraphicResource::GetFootPrint(CopyableFootPrint& footPrint, uint64_t offset) const
 	{
 		assert(mResource);
 
@@ -81,7 +81,7 @@ namespace YD3D
 		UINT subresourceNum = desc.DepthOrArraySize * desc.MipLevels;
 		ret.footPrints.assign(subresourceNum, D3D12_PLACED_SUBRESOURCE_FOOTPRINT());
 
-		dev->GetCopyableFootprints(&desc, 0, subresourceNum, 0, ret.footPrints.data(), &ret.numRows, &ret.rowSizeInBytes, &ret.totalBytes);
+		dev->GetCopyableFootprints(&desc, 0, subresourceNum, offset, ret.footPrints.data(), &ret.numRows, &ret.rowSizeInBytes, &ret.totalBytes);
 	}
 
 	uint64_t GraphicResource::GetResByteSize() const

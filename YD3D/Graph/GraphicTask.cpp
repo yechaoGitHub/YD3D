@@ -16,12 +16,12 @@ namespace YD3D
 	bool GraphicTask::Create(ID3D12Device* device)
 	{
 		mDevice = device;
-		//assert(mCopyCommandQueue.Create(mDevice, D3D12_COMMAND_LIST_TYPE_COPY, D3D12_COMMAND_QUEUE_FLAG_NONE));
-		//assert(mCopyCommandAllocator.Create(mDevice, D3D12_COMMAND_LIST_TYPE_COPY, 10));
-		//assert(mRenderCommandQueue.Create(mDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_QUEUE_FLAG_NONE));
-		//assert(mRenderCommandAllocator.Create(mDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, 10));
-		//assert(mComputeCommandQueue.Create(mDevice, D3D12_COMMAND_LIST_TYPE_COMPUTE, D3D12_COMMAND_QUEUE_FLAG_NONE));
-		//assert(mComputeCommandAllocator.Create(mDevice, D3D12_COMMAND_LIST_TYPE_COMPUTE, 10));
+		assert(mCopyCommandQueue.Create(mDevice, D3D12_COMMAND_LIST_TYPE_COPY, D3D12_COMMAND_QUEUE_FLAG_NONE));
+		assert(mCopyCommandAllocator.Create(mDevice, D3D12_COMMAND_LIST_TYPE_COPY, 10));
+		assert(mRenderCommandQueue.Create(mDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_QUEUE_FLAG_NONE));
+		assert(mRenderCommandAllocator.Create(mDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, 10));
+		assert(mComputeCommandQueue.Create(mDevice, D3D12_COMMAND_LIST_TYPE_COMPUTE, D3D12_COMMAND_QUEUE_FLAG_NONE));
+		assert(mComputeCommandAllocator.Create(mDevice, D3D12_COMMAND_LIST_TYPE_COMPUTE, 10));
 		assert(mSwapChainCommandQueue.Create(mDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, D3D12_COMMAND_QUEUE_FLAG_NONE));
 		assert(mSwapChainCommandAllocator.Create(mDevice, D3D12_COMMAND_LIST_TYPE_DIRECT, 10));
 
@@ -102,7 +102,7 @@ namespace YD3D
 		return _GLOBAL_GRAPHIC_TASK_->GetCommandQueue(type);
 	}
 
-	bool GraphicTask::PostGraphicTask(ECommandQueueType type, GraphicTaskFunction&& task, uint64_t* fenceValue)
+	bool GraphicTask::PostGraphicTask(ECommandQueueType type, GraphicTaskFunction &&task, uint64_t* fenceValue)
 	{
 		return _GLOBAL_GRAPHIC_TASK_->PostTask(type, std::move(task), fenceValue);
 	}

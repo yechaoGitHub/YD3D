@@ -9,6 +9,14 @@ namespace YD3D
 
 	struct CopyableFootPrint
 	{
+		CopyableFootPrint() :
+			numRows(0),
+			rowSizeInBytes(0),
+			totalBytes(0)
+		{
+
+		}
+
 		uint32_t			numRows;
 		uint64_t			rowSizeInBytes;
 		uint64_t			totalBytes;
@@ -62,7 +70,7 @@ namespace YD3D
 		D3D12_GPU_VIRTUAL_ADDRESS GetGpuAddress() const;
 		D3D12_RESOURCE_DESC GetDesc() const;
 		D3D12_HEAP_PROPERTIES GetHeapProperties() const;
-		void GetFootPrint(CopyableFootPrint& footPrint) const;
+		void GetFootPrint(CopyableFootPrint& footPrint, uint64_t offset = 0) const;
 		uint64_t GetResByteSize() const;
 
 		void SetName(const wchar_t* name);

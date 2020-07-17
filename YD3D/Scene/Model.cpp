@@ -4,7 +4,9 @@ namespace YD3D
 {
 	using namespace DirectX;
 
-	Model::Model()
+	Model::Model():
+		mDevice(nullptr),
+		mTextureCount(0)
 	{
 	}
 
@@ -87,4 +89,76 @@ namespace YD3D
 		mGrpModelInfo->Update(0, mModelInfo);
 	}
 
+	ModelGraphicResource& Model::GraphicResource()
+	{
+		return mGpuResource;
+	}
+
+	void Model::UpdateTexture(YD3D::WICImage *images, uint32_t count)
+	{
+		assert(count <= 8);
+
+		mTextureCount = count;
+
+		uint64_t totalSize(0);
+		for (uint32_t i = 0; i < count; i++)
+		{
+			totalSize += images[i].Size();
+		}
+
+		if ((!mGpuResource.mUploader) || (mGpuResource.mUploader->GetResByteSize() < totalSize))
+		{
+			mGpuResource.mUploader.assign(new GraphicUploadBuffer);
+			mGpuResource.mUploader->Create(mDevice, totalSize * 4);
+		}
+
+		uint64_t offset(0);
+		for (uint32_t i = 0; i < count; i++)
+		{
+			uint32_t &&imageSize = images[i].Size();
+
+			mTextureLayouts[i].Length = imageSize;
+			mTextureLayouts[i].Offset = offset;
+
+			if ((!mGpuResource.mTextures[i]) || (mGpuResource.mTextures[i]->GetResByteSize() < imageSize))
+			{
+				mGpuResource.mTextures[i].assign(new GraphicTexture);
+				mGpuResource.mTextures[i]->Create(mDevice, images->Width(), images->Height());
+			}
+
+			CopyableFootPrint footPrint;
+			mGpuResource.mTextures[i]->GetFootPrint(footPrint, offset);
+
+			mGpuResource.mUploader->CopyData(footPrint.footPrints[0].Offset, images[i].Data(), imageSize);
+			offset += imageSize;
+		}
+	}
+
+	void Model::UpdateGraphicResource(ID3D12GraphicsCommandList* commandList)
+	{
+		CD3DX12_RESOURCE_BARRIER beforeBarrier[8] = {};
+		CD3DX12_RESOURCE_BARRIER afterBarrier[8] = {};
+
+		for (uint32_t i = 0; i < mTextureCount; i++)
+		{
+			beforeBarrier[i] = CD3DX12_RESOURCE_BARRIER::Transition(mGpuResource.mTextures[i]->Resource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+			afterBarrier[i] = CD3DX12_RESOURCE_BARRIER::Transition(mGpuResource.mTextures[i]->Resource(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_COMMON);
+		}
+
+		commandList->ResourceBarrier(mTextureCount, beforeBarrier);
+
+		uint64_t uploadOffset(0);
+		for (uint32_t i = 0; i < mTextureCount; i++)
+		{
+			CopyableFootPrint footPrint;
+			mGpuResource.mTextures[i]->GetFootPrint(footPrint, mTextureLayouts[i].Offset);
+
+			CD3DX12_TEXTURE_COPY_LOCATION src(mGpuResource.mUploader->Resource(), footPrint.footPrints[0]);
+			CD3DX12_TEXTURE_COPY_LOCATION dest(mGpuResource.mTextures[i]->Resource());
+			
+			commandList->CopyTextureRegion(&dest, 0, 0, 0, &src, nullptr);
+		}
+	
+		commandList->ResourceBarrier(mTextureCount, afterBarrier);
+	}
 }

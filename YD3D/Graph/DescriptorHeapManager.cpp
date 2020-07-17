@@ -119,7 +119,7 @@ namespace YD3D
 		return cpuHandle;
 	}
 
-	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::BindSrView(uint32_t index, uint32_t count, GraphicResource* vecRes, const D3D12_SHADER_RESOURCE_VIEW_DESC* vecView)
+	D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeapManager::BindSrView(uint32_t index, uint32_t count, GraphicResource** vecRes, const D3D12_SHADER_RESOURCE_VIEW_DESC* vecView)
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
@@ -132,10 +132,10 @@ namespace YD3D
 		bool occupied(false);
 		if (mCbvSrvUavHeap->IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindSrView(index, &vecRes[0], vecView);
+		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindSrView(index, vecRes[0], vecView);
 		for (uint32_t i = 1; i < count; i++)
 		{
-			BindSrView(index + i, &vecRes[i], vecView ? (vecView + i) : nullptr);
+			BindSrView(index + i, vecRes[i], vecView ? (vecView + i) : nullptr);
 		}
 
 		return handle;

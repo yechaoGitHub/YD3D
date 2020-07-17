@@ -8,9 +8,12 @@
 #include "Scene/Scene.h"
 #include "Scene/Model.h"
 #include "TestPipeLine.h"
+#include "Helper/WICImage.h"
 
 class TestWindow : public YD3D::YWindow
 {
+	enum EImage { EBASE_COLOR, EMETALLIC, ENORMAL, EROUGHNESS };
+
 public:
 	TestWindow();
 	virtual ~TestWindow();
@@ -46,6 +49,8 @@ private:
 	gc_ptr<TestResourcePackage>			mPackage;
 	gc_ptr<YD3D::GraphicDepthStencil>	mDs;
 	POINT								mLastMousePos;
+	YD3D::WICImage						mImages[4];
+	
 
 	void InitD3D();
 	void InitScence();
