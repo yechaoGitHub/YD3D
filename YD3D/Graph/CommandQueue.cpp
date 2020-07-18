@@ -156,8 +156,5 @@ namespace YD3D
 
 		return true;
 	}
-
-	
-
 };
 

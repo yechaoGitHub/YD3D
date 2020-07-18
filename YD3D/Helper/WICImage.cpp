@@ -42,11 +42,24 @@ namespace YD3D
 
 		ThrowIfFailed(mFrame->GetPixelFormat(&mPixelFormat));
 
+		Microsoft::WRL::ComPtr<IWICFormatConverter> pIConverter;
+		Microsoft::WRL::ComPtr<IWICBitmapSource> bitmapSource;
+		ThrowIfFailed(_WIC_IMAGE_FACTORY_->CreateFormatConverter(&pIConverter));
+		ThrowIfFailed(pIConverter->Initialize(
+			mFrame.Get(),               
+			GUID_WICPixelFormat32bppRGBA,						 
+			WICBitmapDitherTypeNone,        
+			NULL,                            
+			0.f,                            
+			WICBitmapPaletteTypeCustom));
+
+		ThrowIfFailed(pIConverter.As(&bitmapSource));
+
 		ThrowIfFailed(_WIC_IMAGE_FACTORY_->CreateBitmapFromSource(
-			mFrame.Get(),
+			bitmapSource.Get(),
 			WICBitmapCacheOnDemand,
 			&mBitmap));
-
+	
 		ThrowIfFailed(mFrame->GetSize(&mWidth, &mHeight));
 
 		WICRect rt = { 0, 0, mWidth, mHeight};

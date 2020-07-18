@@ -52,12 +52,11 @@ bool TestPass::SerializeRootSignature()
 	rootParam[2].InitAsConstantBufferView(1);
 	rootParam[3].InitAsConstantBufferView(2);
 	
-
 	CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc(
 		4,
 		rootParam,
-		0,
-		nullptr,
+		GetStaticSamplers().size(),
+		GetStaticSamplers().data(),
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;

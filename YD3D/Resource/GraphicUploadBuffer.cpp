@@ -47,7 +47,7 @@ namespace YD3D
 		return false;
 	}
 
-	BYTE* GraphicUploadBuffer::GetMappedPointer()
+	uint8_t* GraphicUploadBuffer::GetMappedPointer()
 	{
 		return mMappedData;
 	}
