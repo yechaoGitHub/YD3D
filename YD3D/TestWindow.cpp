@@ -1,4 +1,5 @@
 #include "TestWindow.h"
+#include "Helper/GeometricMeshFactory.h"
 
 using namespace YD3D;
 using namespace DirectX;
@@ -84,12 +85,18 @@ void TestWindow::OnMouseMove(YD3D::EMouseKey btnState, uint32_t x, uint32_t y)
 		float dx = XMConvertToRadians(0.25f * static_cast<float>((int32_t)x - mLastMousePos.x));
 		float dy = XMConvertToRadians(0.25f * static_cast<float>((int32_t)y - mLastMousePos.y));
 
-		if (mScene->State.null_and_add(ESceneState::RENDER_UPLOADING, ESceneState::SCENE_UPDATING))
-		{
-			mScene->GetCamera().Pitch(dy);
-			mScene->GetCamera().RotateY(dx);
-			mScene->State.has_and_transfer(ESceneState::SCENE_UPDATING, ESceneState::DIRTY, ESceneState::SCENE_UPDATING);
-		}
+		Scene *pScene = mScene.get_raw_ptr();
+		mScene->StateBarrier(
+			[pScene](ystate<ESceneState>& state)
+			{
+				return state.null_and_add(ESceneState::RENDER_UPLOADING, ESceneState::SCENE_UPDATING);
+			},
+			[pScene, dx, dy](ystate<ESceneState>& state)
+			{
+				pScene->Pitch(dy);
+				pScene->RotateY(dx);
+				state.remove_state(ESceneState::SCENE_UPDATING);
+			});
 	}
 
 	mLastMousePos.x = x;
@@ -128,54 +135,8 @@ void TestWindow::InitD3D()
 }
 
 void TestWindow::InitScence()
-{	std::vector<YD3D::Vertex> vecVertex =
-	{
-		Vertex(-1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
-		Vertex(-1.0f, +1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f),
-		Vertex(+1.0f, +1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
-		Vertex(+1.0f, -1.0f, -1.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
-
-		Vertex(-1.0f, -1.0f, +1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
-		Vertex(+1.0f, -1.0f, +1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
-		Vertex(+1.0f, +1.0f, +1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f),
-		Vertex(-1.0f, +1.0f, +1.0f, 0.0f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
-
-		Vertex(-1.0f, +1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
-		Vertex(-1.0f, +1.0f, +1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f),
-		Vertex(+1.0f, +1.0f, +1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
-		Vertex(+1.0f, +1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
-
-		Vertex(-1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 1.0f),
-		Vertex(+1.0f, -1.0f, -1.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f),
-		Vertex(+1.0f, -1.0f, +1.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f),
-		Vertex(-1.0f, -1.0f, +1.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
-
-		Vertex(-1.0f, -1.0f, +1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f),
-		Vertex(-1.0f, +1.0f, +1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f),
-		Vertex(-1.0f, +1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f),
-		Vertex(-1.0f, -1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f),
-
-		Vertex(+1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f),
-		Vertex(+1.0f, +1.0f, -1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f),
-		Vertex(+1.0f, +1.0f, +1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f),
-		Vertex(+1.0f, -1.0f, +1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f)
-	};
-
-	std::vector<uint32_t> vecIndex =
-	{
-		0, 1, 2,
-		0, 2, 3,
-		4, 5, 6,
-		4, 6, 7,
-		8, 9, 10,
-		8, 10, 11,
-		12, 13, 14,
-		12, 14, 15,
-		16, 17, 18,
-		16, 18, 19,
-		20, 21, 22,
-		20, 22, 23,
-	};
+{	
+	MeshData &&meshData = GeometricMeshFactory::CreateSphere();
 
 	mImages[EBASE_COLOR].OpenImageFile(L"DemoResource/rustediron2_basecolor.png");
 	mImages[EMETALLIC].OpenImageFile(L"DemoResource/rustediron2_metallic.png");
@@ -186,7 +147,7 @@ void TestWindow::InitScence()
 	model.assign(new Model);
 	mScene.assign(new Scene);
 
-	model->Create(_D3D12DEVICE_, vecVertex, vecIndex);
+	model->Create(_D3D12DEVICE_, meshData.Vertices, meshData.Indices);
 	mScene->Create(_D3D12DEVICE_);
 	mScene->AddModel(model.get_raw_ptr());
 
@@ -205,6 +166,8 @@ void TestWindow::InitScence()
 
 	DescriptorHeapManager::GobalDescriptorHeapManager()->BindSrView(ANY_DESCRIPTOR_HEAP_POS, 4, arrGpuRes, nullptr);
 
+	mScene->UpdateLightParam();
+	mScene->UpdateDrawParam();
 	mScene->UpdateGraphicResource(true);
 }
 
@@ -250,31 +213,30 @@ void TestWindow::ResourcePackageCallback(YD3D::EResourcePackageState beforeState
 
 void TestWindow::Update()
 {
-	if (mScene->State.has_state_weak(ESceneState::DIRTY))
+	if (mScene->State().has_state_weak(static_cast<ESceneState>(CAMERA_DIRTY|LIGHT_PARAM_DIRTY|LIGHT_DIRTY|DRAW_PARAM_DIRTY|VERTEX_INDEX_DIRTY)))
 	{
-		mScene->State.add_state(ESceneState::RENDER_UPLOADING);
+		mScene->State().add_state(ESceneState::RENDER_UPLOADING);
 	}
 
-	if (mScene->State.null_and_add(ESceneState::SCENE_UPDATING, ESceneState::RENDER_UPLOADING))
+	if (mScene->State().null_and_add(ESceneState::SCENE_UPDATING, ESceneState::RENDER_UPLOADING))
 	{
 		const float dt = mTimer.DeltaTime() * -0.01;
 
 		if (GetAsyncKeyState('W') & 0x8000)
-			mScene->GetCamera().Walk(1.0f * dt);
+			mScene->Walk(1.0f * dt);
 
 		if (GetAsyncKeyState('S') & 0x8000)
-			mScene->GetCamera().Walk(-1.0f * dt);
+			mScene->Walk(-1.0f * dt);
 
 		if (GetAsyncKeyState('A') & 0x8000)
-			mScene->GetCamera().Strafe(-1.0f * dt);
+			mScene->Strafe(-1.0f * dt);
 
 		if (GetAsyncKeyState('D') & 0x8000)
-			mScene->GetCamera().Strafe(1.0f * dt);
+			mScene->Strafe(1.0f * dt);
 
-		mScene->UpdateSceneInfo();
+		mScene->UpdateGraphicResource(true);
 
-		mScene->State.remove_state(ESceneState::DIRTY);
-		mScene->State.remove_state(ESceneState::RENDER_UPLOADING);
+		mScene->State().remove_state(ESceneState::RENDER_UPLOADING);
 	}
 }
 

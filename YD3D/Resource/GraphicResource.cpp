@@ -13,7 +13,7 @@ namespace YD3D
 		if (mResource) 
 		{
 			Release();
-			DescriptorHeapManager::GobalDescriptorHeapManager()->RemoveAllView(this);
+			
 		}
 	}
 

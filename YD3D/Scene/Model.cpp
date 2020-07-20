@@ -20,8 +20,8 @@ namespace YD3D
 		mMesh = mesh;
 		mIndex = index;
 
-		mGrpModelInfo.assign(new GraphicConstBuffer<ModelInfo, 1>);
-		mGrpModelInfo->Create(mDevice);
+		mGrpModelInfo.assign(new GraphicConstBuffer<ModelInfo>);
+		mGrpModelInfo->Create(mDevice, 1);
 
 		UpdateModelInfo();
 		return true;
@@ -33,8 +33,8 @@ namespace YD3D
 		mMesh = std::move(mesh);
 		mIndex = std::move(index);
 
-		mGrpModelInfo.assign(new GraphicConstBuffer<ModelInfo, 1>);
-		mGrpModelInfo->Create(mDevice);
+		mGrpModelInfo.assign(new GraphicConstBuffer<ModelInfo>);
+		mGrpModelInfo->Create(mDevice, 1);
 
 		UpdateModelInfo();
 		return true;
@@ -70,7 +70,7 @@ namespace YD3D
 		return mIndex.data();
 	}
 
-	GraphicConstBuffer<ModelInfo, 1>* Model::GraphicModelInfo()
+	GraphicConstBuffer<ModelInfo>* Model::GraphicModelInfo()
 	{
 		return mGrpModelInfo.get_raw_ptr();
 	}

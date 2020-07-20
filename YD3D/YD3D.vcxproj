@@ -105,6 +105,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>DirectXTK12.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -153,6 +154,7 @@
     <ClCompile Include="Graph\DxFactory.cpp" />
     <ClCompile Include="Graph\GraphicTask.cpp" />
     <ClCompile Include="Graph\SwapChain.cpp" />
+    <ClCompile Include="Helper\GeometricMeshFactory.cpp" />
     <ClCompile Include="Helper\WICImage.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PipeLine\ResourcePackage.cpp" />
@@ -215,6 +217,7 @@
     <ClInclude Include="Graph\DxFactory.h" />
     <ClInclude Include="Graph\GraphicTask.h" />
     <ClInclude Include="Graph\SwapChain.h" />
+    <ClInclude Include="Helper\GeometricMeshFactory.h" />
     <ClInclude Include="Helper\WICImage.h" />
     <ClInclude Include="PipeLine\PassTemplate.hpp" />
     <ClInclude Include="PipeLine\PipeLineTemplate.hpp" />
@@ -230,6 +233,7 @@
     <ClInclude Include="Resource\GraphicUploadBuffer.h" />
     <ClInclude Include="Resource\GraphicVertexBuffer.h" />
     <ClInclude Include="Scene\Camera.h" />
+    <ClInclude Include="Scene\Light.h" />
     <ClInclude Include="Scene\Model.h" />
     <ClInclude Include="Scene\Scene.h" />
     <ClInclude Include="TestPass.h" />

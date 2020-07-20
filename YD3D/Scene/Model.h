@@ -16,7 +16,7 @@ namespace YD3D
 	
 	struct ModelGraphicResource 
 	{
-		gc_ptr<GraphicConstBuffer<ModelInfo, 1>>	mGrpModelInfo;
+		gc_ptr<GraphicConstBuffer<ModelInfo>>		mGrpModelInfo;
 		gc_ptr<GraphicTexture>						mTextures[8];
 		gc_ptr<GraphicUploadBuffer>					mUploader;
 	};
@@ -57,7 +57,7 @@ namespace YD3D
 		const Vertex* Vertices() const;
 		const uint32_t* Indices() const;
 
-		GraphicConstBuffer<ModelInfo, 1>* GraphicModelInfo();
+		GraphicConstBuffer<ModelInfo>* GraphicModelInfo();
 		void UpdateModelInfo();
 
 		ModelGraphicResource& GraphicResource();
@@ -68,7 +68,7 @@ namespace YD3D
 		ID3D12Device*								mDevice;
 		std::vector<Vertex>							mMesh;
 		std::vector<uint32_t>						mIndex;
-		gc_ptr<GraphicConstBuffer<ModelInfo, 1>>	mGrpModelInfo;
+		gc_ptr<GraphicConstBuffer<ModelInfo>>	mGrpModelInfo;
 		ModelInfo									mModelInfo;
 		uint32_t									mTextureCount;
 		TextureLayout								mTextureLayouts[8];

@@ -7,11 +7,11 @@ namespace YD3D
 	using namespace DirectX;
 
 	Scene::Scene():
-		State(ESceneState::FREE),
 		mDevice(nullptr),
 		mVertexBufferLength(0),
 		mIndexBufferLength(0),
-		mModels(get_gc_allocator<gc_ptr<Model>>())
+		mModels(get_gc_allocator<gc_ptr<Model>>()),
+		mState(ESceneState::FREE)
 	{
 	}
 
@@ -26,10 +26,10 @@ namespace YD3D
 		assert(mIndexBuffer.Create(mDevice, 1024, DXGI_FORMAT_R32_UINT));
 		assert(mUploadBuffer.Create(mDevice, 1024));
 
-		mCamera.SetLens(0.25f * Pi, 4.0/3.0, 0.1, 1000.0f);
-		mCamera.LookAt(XMFLOAT3{ 0, 0, -3 }, XMFLOAT3{ 0,0,0 }, XMFLOAT3{0, 1, 0});
-		mGrpSceneInfo.assign(new GraphicConstBuffer<SceneInfo, 1>);
-		assert(mGrpSceneInfo->Create(mDevice));
+		SetLens(0.25f * Pi, 4.0/3.0, 0.1, 1000.0f);
+		LookAt(XMFLOAT3{ 0, 0, -3 }, XMFLOAT3{ 0,0,0 }, XMFLOAT3{0, 1, 0});
+		mGpuSceneInfo.assign(new GraphicConstBuffer<SceneInfo>);
+		assert(mGpuSceneInfo->Create(mDevice, 1));
 		
 		return true;
 	}
@@ -41,57 +41,119 @@ namespace YD3D
 		mVertexBufferLength += model->VertexSize();
 		mIndexBufferLength += model->IndexSize();
 
+		mState.add_state(DRAW_PARAM_DIRTY);
+
 		return true;
 	}
 
 	void Scene::UpdateGraphicResource(bool wait)
 	{
-		if (mVertexBufferLength > mVertexBuffer.BufferLength())
+		if (mState.has_state_strong(CAMERA_DIRTY))
 		{
-			mVertexBuffer.Release();
-			mVertexBuffer.Create(mDevice, sizeof(Vertex), mVertexBufferLength / sizeof(Vertex));
+			mCamera.UpdateViewMatrix();
+
+			SceneInfo* gpuSceneInfo = reinterpret_cast<SceneInfo*>(mGpuSceneInfo->GetMappedPointer());
+
+			gpuSceneInfo->CameraPos = mCamera.GetPosition3f();
+			gpuSceneInfo->CameraDir = mCamera.GetLook3f();
+			gpuSceneInfo->View = mCamera.GetView4x4f();
+			gpuSceneInfo->Project = mCamera.GetProj4x4f();
+			auto matViewProj = XMMatrixMultiply(mCamera.GetView(), mCamera.GetProj());
+			XMStoreFloat4x4(&gpuSceneInfo->ViewProject, matViewProj);
+
+			mState.remove_state(CAMERA_DIRTY);
 		}
 
-		if (mIndexBufferLength > mIndexBuffer.BufferLength())
+		if (mState.has_state_strong(LIGHT_DIRTY))
 		{
-			mIndexBuffer.Release();
-			mIndexBuffer.Create(mDevice, mIndexBufferLength, DXGI_FORMAT_R32_UINT);
+			SceneInfo* gpuSceneInfo = reinterpret_cast<SceneInfo*>(mGpuSceneInfo->GetMappedPointer());
+			gpuSceneInfo->PointLightCount = mPointLights.size();
+			gpuSceneInfo->SpotLightCount = mSpotLights.size();
+
+			uint32_t index(0);
+			for (auto &light : mPointLights) 
+			{
+				mGpuLightInfo->Update(index, light);
+				index++;
+			}
+
+			for (auto &light : mSpotLights) 
+			{
+				mGpuLightInfo->Update(index, light);
+				index++;
+			}
+
+			mState.remove_state(LIGHT_DIRTY);
 		}
 
-		uint64_t uploadSize = mVertexBufferLength + mIndexBufferLength;
-		if (uploadSize > mUploadBuffer.GetResByteSize())
+		if (mState.has_state_strong(VERTEX_INDEX_DIRTY))
 		{
-			mUploadBuffer.Release();
-			mUploadBuffer.Create(mDevice, uploadSize);
-		}
+			uint64_t fenceValue(0);
+			GraphicTask::PostGraphicTask(
+				ECommandQueueType::ECOPY, 
+				[this](ID3D12GraphicsCommandList* commandList)
+				{
+					return GraphicTaskUploadVertexIndexData(commandList);
+				}, 
+				&fenceValue,
+				[this] (D3D12_COMMAND_LIST_TYPE, uint64_t)
+				{
+					mState.remove_state(VERTEX_INDEX_DIRTY);
+				});
 
-		uint64_t vertexOffset(0);
-		uint64_t indexOffset(0);
-		for (auto &model : mModels) 
-		{
-			uint64_t curVertexSize = model->VertexSize();
-			mUploadBuffer.CopyData(vertexOffset, reinterpret_cast<const BYTE*>(model->Vertices()), curVertexSize);
-			
-			uint64_t curIndexSize = model->IndexSize();
-			mUploadBuffer.CopyData(indexOffset + mVertexBufferLength, reinterpret_cast<const BYTE*>(model->Indices()), curIndexSize);
-			
-			DrawParam drawParam;
-			drawParam.Model = model.get_raw_ptr();
-			drawParam.IndexCountPerInstance = model->IndexCount();
-			drawParam.BaseVertexLocation = vertexOffset;
-			drawParam.StartIndexLocation = indexOffset;
-			mDrawParam.insert(std::make_pair(drawParam.Model, drawParam));
-			vertexOffset += curVertexSize;
-			indexOffset += curIndexSize;
-
-			model->UpdateModelInfo();
+			if (wait) 
+			{
+				GraphicTask::WaitForGraphicTaskCompletion(ECommandQueueType::ECOPY, fenceValue);
+			}
 		}
-		
-		uint64_t fenceValue = PostUploadTask();
-		UpdateSceneInfo();
-		if (wait) 
+	}
+
+	void Scene::UpdateDrawParam()
+	{
+		if (mState.has_state_strong(DRAW_PARAM_DIRTY))
 		{
-			GraphicTask::WaitForGraphicTaskCompletion(ECommandQueueType::ESWAP_CHAIN, fenceValue, true);
+			if (mVertexBufferLength > mVertexBuffer.BufferLength())
+			{
+				mVertexBuffer.Release();
+				mVertexBuffer.Create(mDevice, sizeof(Vertex), mVertexBufferLength / sizeof(Vertex));
+			}
+
+			if (mIndexBufferLength > mIndexBuffer.BufferLength())
+			{
+				mIndexBuffer.Release();
+				mIndexBuffer.Create(mDevice, mIndexBufferLength, DXGI_FORMAT_R32_UINT);
+			}
+
+			uint64_t uploadSize = mVertexBufferLength + mIndexBufferLength;
+			if (uploadSize > mUploadBuffer.GetResByteSize())
+			{
+				mUploadBuffer.Release();
+				mUploadBuffer.Create(mDevice, uploadSize);
+			}
+
+			uint64_t vertexOffset(0);
+			uint64_t indexOffset(0);
+			for (auto& model : mModels)
+			{
+				uint64_t curVertexSize = model->VertexSize();
+				mUploadBuffer.CopyData(vertexOffset, reinterpret_cast<const BYTE*>(model->Vertices()), curVertexSize);
+
+				uint64_t curIndexSize = model->IndexSize();
+				mUploadBuffer.CopyData(indexOffset + mVertexBufferLength, reinterpret_cast<const BYTE*>(model->Indices()), curIndexSize);
+
+				DrawParam drawParam;
+				drawParam.Model = model.get_raw_ptr();
+				drawParam.IndexCountPerInstance = model->IndexCount();
+				drawParam.BaseVertexLocation = vertexOffset;
+				drawParam.StartIndexLocation = indexOffset;
+				mDrawParam.insert(std::make_pair(drawParam.Model, drawParam));
+				vertexOffset += curVertexSize;
+				indexOffset += curIndexSize;
+
+				model->UpdateModelInfo();
+			}
+
+			mState.transfer_state(DRAW_PARAM_DIRTY, VERTEX_INDEX_DIRTY);
 		}
 	}
 
@@ -110,31 +172,115 @@ namespace YD3D
 		return mDrawParam;
 	}
 
-	GraphicConstBuffer<SceneInfo, 1>* Scene::GraphicSceneInfo()
+	void Scene::Walk(float value)
 	{
-		return mGrpSceneInfo.get_raw_ptr();
+		mCamera.Walk(value);
+		mState.add_state(CAMERA_DIRTY);
 	}
 
-	Camera& Scene::GetCamera()
+	void Scene::Strafe(float value)
 	{
-		return mCamera;
+		mCamera.Strafe(value);
+		mState.add_state(CAMERA_DIRTY);
 	}
 
-	void Scene::UpdateSceneInfo()
+	void Scene::Pitch(float angle)
 	{
-		mCamera.UpdateViewMatrix();
-
-		mSceneInfo.CameraPos = mCamera.GetPosition3f();
-		mSceneInfo.CameraDir = mCamera.GetLook3f();
-		mSceneInfo.View = mCamera.GetView4x4f();
-		mSceneInfo.Project = mCamera.GetProj4x4f();
-		auto matViewProj = XMMatrixMultiply(mCamera.GetView() , mCamera.GetProj());
-		XMStoreFloat4x4(&mSceneInfo.ViewProject, matViewProj);
-
-		mGrpSceneInfo->Update(0, mSceneInfo);
+		mCamera.Pitch(angle);
+		mState.add_state(CAMERA_DIRTY);
 	}
 
-	bool Scene::UploadTask(ID3D12GraphicsCommandList* commandList)
+	void Scene::RotateY(float angle)
+	{
+		mCamera.RotateY(angle);
+		mState.add_state(CAMERA_DIRTY);
+	}
+
+	void Scene::LookAt(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& target, const DirectX::XMFLOAT3& up)
+	{
+		mCamera.LookAt(pos, target, up);
+		mState.add_state(CAMERA_DIRTY);
+	}
+
+	void Scene::SetLens(float fovY, float aspect, float zn, float zf)
+	{
+		mCamera.SetLens(fovY, aspect, zn, zf);
+		mState.add_state(CAMERA_DIRTY);
+	}
+
+	GraphicConstBuffer<SceneInfo>* Scene::GraphicSceneInfo()
+	{
+		return mGpuSceneInfo.get_raw_ptr();
+	}
+
+	GraphicConstBuffer<LightDataStruct>* Scene::GraphicLightInfo()
+	{
+		return mGpuLightInfo.get_raw_ptr();
+	}
+
+	void Scene::AddPointLight(const DirectX::XMFLOAT3& strength, const DirectX::XMFLOAT3& position)
+	{
+		mSceneInfo.PointLightCount++;
+
+		LightDataStruct light;
+		light.Strength = strength;
+		light.Position = position;
+
+		mPointLights.push_back(light);
+
+		mState.add_state(LIGHT_PARAM_DIRTY);
+	}
+
+	void Scene::AddSpotLight(const DirectX::XMFLOAT3& strength, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& direction)
+	{
+		mSceneInfo.SpotLightCount++;
+
+		LightDataStruct light;
+		light.Strength = strength;
+		light.Position = position;
+		light.Diretion = direction;
+
+		mSpotLights.push_back(light);
+
+		mState.add_state(LIGHT_PARAM_DIRTY);
+	}
+
+	void Scene::UpdateLightParam()
+	{
+		if (mState.has_state_strong(LIGHT_PARAM_DIRTY))
+		{
+			uint32_t lightCount = mPointLights.size() + mSpotLights.size();
+			uint32_t gpuLightCount = mGpuLightInfo->ElemCount();
+
+			if (gpuLightCount < lightCount) 
+			{
+				mGpuLightInfo->Release();
+				mGpuLightInfo->Create(mDevice, gpuLightCount);
+			}
+
+			mState.transfer_state(LIGHT_PARAM_DIRTY, LIGHT_DIRTY);
+		}
+	}
+
+	ystate<ESceneState>& Scene::State()
+	{
+		return mState;
+	}
+
+	bool Scene::StateBarrier(StateCheckFunction stateCheckFunc, StateSetFunction stateSetFunc)
+	{
+		if (stateCheckFunc(mState)) 
+		{
+			stateSetFunc(mState);
+			return true;
+		}
+		else 
+		{
+			return false;
+		}
+	}
+
+	bool Scene::GraphicTaskUploadVertexIndexData(ID3D12GraphicsCommandList* commandList)
 	{
 		CD3DX12_RESOURCE_BARRIER barrier[4];
 
@@ -153,11 +299,4 @@ namespace YD3D
 		return true;
 	}
 
-	uint64_t Scene::PostUploadTask()
-	{		
-		uint64_t fenceValue(0);
-		GraphicTaskFunction task = std::bind(&Scene::UploadTask, this, std::placeholders::_1);
-		GraphicTask::PostGraphicTask(ECommandQueueType::ESWAP_CHAIN, std::move(task), &fenceValue);
-		return fenceValue;
-	}
 }

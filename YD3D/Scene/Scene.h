@@ -2,6 +2,7 @@
 #include "YD3D_Header.h"
 #include "Camera.h"
 #include "Model.h"
+#include "Light.h"
 #include "Resource/GraphicVertexBuffer.h"
 #include "Resource/GraphicIndexBuffer.h"
 #include "Resource/GraphicUploadBuffer.h"
@@ -32,17 +33,25 @@ namespace YD3D
 
 	ALIGN_16 struct SceneInfo
 	{
-		DirectX::XMFLOAT4X4 View = Identity4x4();
-		DirectX::XMFLOAT4X4 Project = Identity4x4();
-		DirectX::XMFLOAT4X4 ViewProject = Identity4x4();
+		DirectX::XMFLOAT4X4			View = Identity4x4();
+		DirectX::XMFLOAT4X4			Project = Identity4x4();
+		DirectX::XMFLOAT4X4			ViewProject = Identity4x4();
 		ALIGN_16 DirectX::XMFLOAT3	CameraPos = {};
 		ALIGN_16 DirectX::XMFLOAT3	CameraDir = {};
+		ALIGN_16 uint32_t			PointLightCount = 0;
+				 uint32_t			SpotLightCount = 0;
+		ALIGN_16 DirectX::XMFLOAT3	AmbientLight = {};
+		ALIGN_16 DirectX::XMFLOAT3  DirectionalLightDir = {};
+		ALIGN_16 DirectX::XMFLOAT3  DirectionalLightStrength = {};
 	};
 
-	enum ESceneState { FREE = 0, SCENE_UPDATING = 0x01, RENDER_UPLOADING = 0x02, DIRTY = 0x04 };
+	enum ESceneState { FREE = 0, SCENE_UPDATING = 0x01, RENDER_UPLOADING = 0x02, CAMERA_DIRTY = 0x04, LIGHT_PARAM_DIRTY = 0x10, LIGHT_DIRTY = 0x20, DRAW_PARAM_DIRTY = 0x40, VERTEX_INDEX_DIRTY = 0x80 };
 
 	class Scene : public enable_gc_ptr_form_raw
 	{
+		typedef std::function<bool(ystate<ESceneState>&)> StateCheckFunction;
+		typedef std::function<void(ystate<ESceneState>&)> StateSetFunction;
+
 	public:
 		enum { need_clear_up_gc_ptr = 0 };
 
@@ -51,33 +60,50 @@ namespace YD3D
 
 		bool Create(ID3D12Device *device);
 		bool AddModel(const Model *model);
+		void UpdateDrawParam();
+		
 		void UpdateGraphicResource(bool wait = false);
 
 		const D3D12_INDEX_BUFFER_VIEW& IndexView();
 		const D3D12_VERTEX_BUFFER_VIEW& VertexView();
 		const MapDrawParam& GetDrawParam();
 		
-		GraphicConstBuffer<SceneInfo, 1>* GraphicSceneInfo();
-		Camera& GetCamera();
-		void UpdateSceneInfo();
-		ystate<ESceneState>			State;
+		void Walk(float value);
+		void Strafe(float value);
+		void Pitch(float angle);
+		void RotateY(float angle);
+		void LookAt(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& target, const DirectX::XMFLOAT3& up);
+		void SetLens(float fovY, float aspect, float zn, float zf);
 
-	private:
-		ID3D12Device*				mDevice;
-		uint64_t					mVertexBufferLength;
-		uint64_t					mIndexBufferLength;
-		GraphicVertexBuffer			mVertexBuffer;
-		GraphicIndexBuffer			mIndexBuffer;
-		GraphicUploadBuffer			mUploadBuffer;
-		VecModel					mModels;
-		MapDrawParam				mDrawParam;
+		void AddPointLight(const DirectX::XMFLOAT3& strength, const DirectX::XMFLOAT3 &position);
+		void AddSpotLight(const DirectX::XMFLOAT3& strength, const DirectX::XMFLOAT3 &position, const DirectX::XMFLOAT3 &direction);
+		void UpdateLightParam();
 
-		Camera										mCamera;
-		gc_ptr<GraphicConstBuffer<SceneInfo, 1>>	mGrpSceneInfo;
-		SceneInfo									mSceneInfo;
+		ystate<ESceneState>& State();
+		bool StateBarrier(StateCheckFunction stateCheckFunc, StateSetFunction stateSetFunc);
 		
-		bool UploadTask(ID3D12GraphicsCommandList *commandList);
-		uint64_t PostUploadTask();
+		GraphicConstBuffer<SceneInfo>*			GraphicSceneInfo();
+		GraphicConstBuffer<LightDataStruct>*	GraphicLightInfo();
+		
+	private:
+		ID3D12Device*									mDevice;
+		uint64_t										mVertexBufferLength;
+		uint64_t										mIndexBufferLength;
+		GraphicVertexBuffer								mVertexBuffer;
+		GraphicIndexBuffer								mIndexBuffer;
+		GraphicUploadBuffer								mUploadBuffer;
+		VecModel										mModels;
+		MapDrawParam									mDrawParam;
+
+		Camera											mCamera;
+		SceneInfo										mSceneInfo;
+		std::vector<LightDataStruct>					mPointLights;
+		std::vector<LightDataStruct>					mSpotLights;
+		gc_ptr<GraphicConstBuffer<SceneInfo>>			mGpuSceneInfo;
+		gc_ptr<GraphicConstBuffer<LightDataStruct>>		mGpuLightInfo;
+		ystate<ESceneState>								mState;
+
+		bool GraphicTaskUploadVertexIndexData(ID3D12GraphicsCommandList *commandList);
 	};
 };
 

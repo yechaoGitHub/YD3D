@@ -18,11 +18,33 @@ cbuffer ModelProperty : register(b0)
 
 cbuffer SceneInfo : register(b1)
 {
-    float4x4 View;
-    float4x4 Project;
-    float4x4 ViewProj;
-    float3 CameraPos;
-	float3 CameraDirection;
+    float4x4    View;
+    float4x4    Project;
+    float4x4    ViewProj;
+    float3      CameraPos;
+	float3      CameraDirection;    
+    uint        PointLightCount;
+    uint        SpotLightCount;
+    float3      AmbientLight;
+    float3      DirectionalLightDir;
+    float3      DirectionalLightStrength;
+};
+
+struct LightDataStruct
+{
+    float3  Strength;
+    float   FalloffStart;
+    float3  Direction;
+    float   FalloffEnd;
+    float3  Position;
+    float   SpotPower;
+};
+
+static const uint MAX_LIGHT_NUM = 1024;
+
+cbuffer cbLightData : register(b2)
+{
+    LightDataStruct     LightData[MAX_LIGHT_NUM];
 };
 
 struct VertexIn

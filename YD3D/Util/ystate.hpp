@@ -128,7 +128,7 @@ namespace YD3D
 			{
 				old_state = m_state;
 				new_state = static_cast<T>(old_state & (~remove_state));
-				new_state |= static_cast<T>(add_state);
+				new_state = static_cast<T>(new_state | add_state);
 			}
 			while (!m_state.compare_exchange_strong(old_state, new_state));
 
