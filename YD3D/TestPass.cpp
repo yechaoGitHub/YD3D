@@ -35,7 +35,8 @@ bool TestPass::PopulateCommandList(YD3D::ResourcePackage* package, ID3D12Graphic
 		commandList->SetGraphicsRootDescriptorTable(0, model->GraphicResource().mTextures[0]->GetGpuDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 0));
 		commandList->SetGraphicsRootConstantBufferView(1, model->GraphicModelInfo()->GetGpuAddress());
 		commandList->SetGraphicsRootConstantBufferView(2, mScene->GraphicSceneInfo()->GetGpuAddress());
-	
+		commandList->SetGraphicsRootConstantBufferView(3, mScene->GraphicLightInfo()->GetGpuAddress());
+
 		commandList->DrawIndexedInstanced(drawParam.IndexCountPerInstance, 1, drawParam.StartIndexLocation, drawParam.BaseVertexLocation, drawParam.StartInstanceLocation);
 	}
 

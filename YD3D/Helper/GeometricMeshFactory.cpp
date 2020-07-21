@@ -34,4 +34,27 @@ namespace YD3D
 
 		return std::move(meshData);
 	}
+
+	MeshData GeometricMeshFactory::CreateBox(const DirectX::XMFLOAT3& size, bool rhcoords, bool invertn)
+	{
+		MeshData meshData;
+		std::vector<GeometricPrimitive::VertexType> vertices;
+		std::vector<uint16_t> indices;
+
+		GeometricPrimitive::CreateBox(vertices, indices, size, rhcoords, invertn);
+
+		for (auto& vertex : vertices)
+		{
+			XMFLOAT3 tangent = {};
+
+			meshData.Vertices.push_back(YD3D::Vertex(vertex.position, vertex.normal, tangent, vertex.textureCoordinate));
+		}
+
+		for (auto& index : indices)
+		{
+			meshData.Indices.push_back(index);
+		}
+
+		return std::move(meshData);
+	}
 };

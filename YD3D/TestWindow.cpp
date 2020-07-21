@@ -47,36 +47,6 @@ uint32_t TestWindow::Run()
 	return (int)msg.wParam;
 }
 
-void TestWindow::CalculateFrameStats()
-{
-	// Code computes the average frames per second, and also the 
-	// average time it takes to render one frame.  These stats 
-	// are appended to the window caption bar.
-
-	static int frameCnt = 0;
-	static float timeElapsed = 0.0f;
-
-	frameCnt++;
-
-	// Compute averages over one second period.
-	if ((mTimer.TotalTime() - timeElapsed) >= 1.0f)
-	{
-		float fps = (float)frameCnt; // fps = frameCnt / 1
-		float mspf = 1000.0f / fps;
-
-		std::wstring fpsStr = std::to_wstring(fps);
-		std::wstring mspfStr = std::to_wstring(mspf);
-
-		std::wstring windowText = L"    fps: " + fpsStr + L"   mspf: " + mspfStr;
-
-		SetWindowText(GetHandle(), windowText.c_str());
-
-		// Reset for next average.
-		frameCnt = 0;
-		timeElapsed += 1.0f;
-	}
-}
-
 void TestWindow::OnMouseMove(YD3D::EMouseKey btnState, uint32_t x, uint32_t y)
 {
 	if ((static_cast<uint64_t>(btnState) & MK_LBUTTON) != 0)
@@ -136,7 +106,7 @@ void TestWindow::InitD3D()
 
 void TestWindow::InitScence()
 {	
-	MeshData &&meshData = GeometricMeshFactory::CreateSphere();
+	MeshData &&meshData = GeometricMeshFactory::CreateSphere(1, 64, false);
 
 	mImages[EBASE_COLOR].OpenImageFile(L"DemoResource/rustediron2_basecolor.png");
 	mImages[EMETALLIC].OpenImageFile(L"DemoResource/rustediron2_metallic.png");
@@ -150,6 +120,8 @@ void TestWindow::InitScence()
 	model->Create(_D3D12DEVICE_, meshData.Vertices, meshData.Indices);
 	mScene->Create(_D3D12DEVICE_);
 	mScene->AddModel(model.get_raw_ptr());
+	mScene->AddPointLight(XMFLOAT3(1, 1, 1), 500, XMFLOAT3(0, 5, -5), 10);
+	mScene->AddSpotLight(3, XMFLOAT3(4, 5, 6), XMFLOAT3(0, 1, 0));
 
 	model->UpdateTexture(mImages, 4);
 

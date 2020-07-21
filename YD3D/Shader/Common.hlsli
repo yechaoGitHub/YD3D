@@ -1,3 +1,4 @@
+#pragma once
 
 SamplerState gsamPointWrap : register(s0);
 SamplerState gsamPointClamp : register(s1);
@@ -32,12 +33,11 @@ cbuffer SceneInfo : register(b1)
 
 struct LightDataStruct
 {
-    float3  Strength;
-    float   FalloffStart;
-    float3  Direction;
-    float   FalloffEnd;
+    float3  Color;
+    float   Intensity;
     float3  Position;
-    float   SpotPower;
+    float   Radius;
+    float3  Diretion;
 };
 
 static const uint MAX_LIGHT_NUM = 1024;

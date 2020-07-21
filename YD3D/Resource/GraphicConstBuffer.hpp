@@ -24,7 +24,7 @@ namespace YD3D
 		bool Create(ID3D12Device* device, uint32_t count)
 		{
 			mElementCount = count;
-			mElementByteSize = CalcConstantBufferByteSize(sizeof(T));
+			mElementByteSize = sizeof(T);//CalcConstantBufferByteSize(sizeof(T));
 			return GraphicUploadBuffer::Create(device, mElementByteSize * mElementCount);
 		}
 

@@ -55,7 +55,6 @@ private:
 	void InitD3D();
 	void InitScence();
 	void InitResource();
-	void CalculateFrameStats();
 	void ResourcePackageCallback(YD3D::EResourcePackageState beforeState, YD3D::EResourcePackageState afterState);
 	void Update();
 };

@@ -38,7 +38,7 @@ namespace YD3D
 		DirectX::XMFLOAT4X4			ViewProject = Identity4x4();
 		ALIGN_16 DirectX::XMFLOAT3	CameraPos = {};
 		ALIGN_16 DirectX::XMFLOAT3	CameraDir = {};
-		ALIGN_16 uint32_t			PointLightCount = 0;
+				 uint32_t			PointLightCount = 0;
 				 uint32_t			SpotLightCount = 0;
 		ALIGN_16 DirectX::XMFLOAT3	AmbientLight = {};
 		ALIGN_16 DirectX::XMFLOAT3  DirectionalLightDir = {};
@@ -75,8 +75,8 @@ namespace YD3D
 		void LookAt(const DirectX::XMFLOAT3& pos, const DirectX::XMFLOAT3& target, const DirectX::XMFLOAT3& up);
 		void SetLens(float fovY, float aspect, float zn, float zf);
 
-		void AddPointLight(const DirectX::XMFLOAT3& strength, const DirectX::XMFLOAT3 &position);
-		void AddSpotLight(const DirectX::XMFLOAT3& strength, const DirectX::XMFLOAT3 &position, const DirectX::XMFLOAT3 &direction);
+		void AddPointLight(const DirectX::XMFLOAT3& color, const float &intensity, const DirectX::XMFLOAT3 &position, const float &radius);
+		void AddSpotLight(const float& radius, const DirectX::XMFLOAT3 &position, const DirectX::XMFLOAT3 &direction);
 		void UpdateLightParam();
 
 		ystate<ESceneState>& State();

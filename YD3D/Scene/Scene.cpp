@@ -25,6 +25,10 @@ namespace YD3D
 		assert(mVertexBuffer.Create(mDevice, sizeof(Vertex), 1024));
 		assert(mIndexBuffer.Create(mDevice, 1024, DXGI_FORMAT_R32_UINT));
 		assert(mUploadBuffer.Create(mDevice, 1024));
+		assert(mGpuLightInfo.assign(new GraphicConstBuffer<LightDataStruct>()));
+		assert(mGpuLightInfo->Create(mDevice, 10));
+
+		auto size = mGpuLightInfo->GetResByteSize();
 
 		SetLens(0.25f * Pi, 4.0/3.0, 0.1, 1000.0f);
 		LookAt(XMFLOAT3{ 0, 0, -3 }, XMFLOAT3{ 0,0,0 }, XMFLOAT3{0, 1, 0});
@@ -218,31 +222,33 @@ namespace YD3D
 		return mGpuLightInfo.get_raw_ptr();
 	}
 
-	void Scene::AddPointLight(const DirectX::XMFLOAT3& strength, const DirectX::XMFLOAT3& position)
+	void Scene::AddPointLight(const DirectX::XMFLOAT3& color, const float& intensity, const DirectX::XMFLOAT3& position, const float& radius)
 	{
 		mSceneInfo.PointLightCount++;
 
 		LightDataStruct light;
-		light.Strength = strength;
+		light.Color = color;
+		light.Intensity = intensity;
 		light.Position = position;
+		light.Radius = radius;
 
 		mPointLights.push_back(light);
 
 		mState.add_state(LIGHT_PARAM_DIRTY);
 	}
 
-	void Scene::AddSpotLight(const DirectX::XMFLOAT3& strength, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& direction)
+	void Scene::AddSpotLight(const float& radius, const DirectX::XMFLOAT3& position, const DirectX::XMFLOAT3& direction)
 	{
-		mSceneInfo.SpotLightCount++;
+		//mSceneInfo.SpotLightCount++;
 
-		LightDataStruct light;
+	/*	LightDataStruct light;
 		light.Strength = strength;
 		light.Position = position;
 		light.Diretion = direction;
 
-		mSpotLights.push_back(light);
+		mSpotLights.push_back(light);*/
 
-		mState.add_state(LIGHT_PARAM_DIRTY);
+		//mState.add_state(LIGHT_PARAM_DIRTY);
 	}
 
 	void Scene::UpdateLightParam()

@@ -149,7 +149,6 @@ namespace YD3D
 			ThrowIfFailed(mFence->SetEventOnCompletion(fenceValue, eventHandle));
 			WaitForSingleObject(eventHandle, INFINITE);
 			CloseHandle(eventHandle);
-
 		}
 
 		mFenceValue += count;
