@@ -1,0 +1,394 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="YD3D">
+      <UniqueIdentifier>{13b0e4d3-0ad0-406a-8cb6-8262417d3e1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="YD3D\Resource">
+      <UniqueIdentifier>{52d1eb60-e37a-478e-8783-954c9a40f38b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GC">
+      <UniqueIdentifier>{4eabe907-b0e2-4b6e-8813-1019cb353c0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DirectXTK12">
+      <UniqueIdentifier>{653e1cfe-1e59-447a-8628-1c65d49c2d12}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="YD3D\Graph">
+      <UniqueIdentifier>{a72a4bf8-449d-45cf-831a-cdcbc61f3711}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="YD3D\Util">
+      <UniqueIdentifier>{669d81bb-756a-4d2b-aefe-c0215299011c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="YD3D\Window">
+      <UniqueIdentifier>{003563d5-050d-47b5-8695-f08258839c2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="YD3D\Scene">
+      <UniqueIdentifier>{d8e6595d-00cb-4ffd-b4bd-1de00931c184}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="YD3D\PipeLine">
+      <UniqueIdentifier>{fc48301a-ce5e-435c-893e-031ffb53821d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="YD3D\Shader">
+      <UniqueIdentifier>{bea4b8ac-8fea-40f7-bd6c-2024c3efb616}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="YD3D\Helper">
+      <UniqueIdentifier>{8d233ca1-670c-4d1c-b8f2-4adcfe6f5c27}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GC\GC\garbage_collection.cpp">
+      <Filter>GC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GC\GC\gc_ptr_node.cpp">
+      <Filter>GC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GC\GC\gc_ptr_node_container.cpp">
+      <Filter>GC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GC\GC\gc_scan_thread.cpp">
+      <Filter>GC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\GC\GC\gc_tref.cpp">
+      <Filter>GC</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\GraphicReadbackBuffer.cpp">
+      <Filter>YD3D\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\GraphicTexture.cpp">
+      <Filter>YD3D\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\GraphicUploadBuffer.cpp">
+      <Filter>YD3D\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\YD3D_Util.cpp">
+      <Filter>YD3D\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\GraphicResource.cpp">
+      <Filter>YD3D\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Graph\CommandListAllocator.cpp">
+      <Filter>YD3D\Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="Graph\CommandQueue.cpp">
+      <Filter>YD3D\Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="Window\YWindow.cpp">
+      <Filter>YD3D\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="Graph\DxFactory.cpp">
+      <Filter>YD3D\Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="TestWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\Scene.cpp">
+      <Filter>YD3D\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\GraphicIndexBuffer.cpp">
+      <Filter>YD3D\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\GraphicVertexBuffer.cpp">
+      <Filter>YD3D\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\Model.cpp">
+      <Filter>YD3D\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Graph\GraphicTask.cpp">
+      <Filter>YD3D\Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="Graph\SwapChain.cpp">
+      <Filter>YD3D\Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\GraphicRenderTarget.cpp">
+      <Filter>YD3D\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\GraphicDepthStencil.cpp">
+      <Filter>YD3D\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Graph\DescriptorHeapManager.cpp">
+      <Filter>YD3D\Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="Graph\DescriptorHeap.cpp">
+      <Filter>YD3D\Graph</Filter>
+    </ClCompile>
+    <ClCompile Include="PipeLine\ResourcePackage.cpp">
+      <Filter>YD3D\PipeLine</Filter>
+    </ClCompile>
+    <ClCompile Include="TestPipeLine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TestPass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\Camera.cpp">
+      <Filter>YD3D\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Timer.cpp">
+      <Filter>YD3D\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthPass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper\WICImage.cpp">
+      <Filter>YD3D\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper\GeometricMeshFactory.cpp">
+      <Filter>YD3D\Helper</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\GC\GC\garbage_collection.h">
+      <Filter>GC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GC\GC\gc_allocator.hpp">
+      <Filter>GC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GC\GC\gc_ptr.hpp">
+      <Filter>GC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GC\GC\gc_ptr_node.h">
+      <Filter>GC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GC\GC\gc_ptr_node_container.h">
+      <Filter>GC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GC\GC\gc_scan_thread.h">
+      <Filter>GC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\GC\GC\gc_tref.h">
+      <Filter>GC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\Audio.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\BufferHelpers.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\CommonStates.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\DDSTextureLoader.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\DescriptorHeap.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\DirectXHelpers.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\EffectPipelineStateDescription.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\Effects.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\GamePad.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\GeometricPrimitive.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\GraphicsMemory.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\Keyboard.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\Model.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\Mouse.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\PostProcess.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\PrimitiveBatch.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\RenderTargetState.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\ResourceUploadBatch.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\ScreenGrab.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\SimpleMath.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\SpriteBatch.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\SpriteFont.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\VertexTypes.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\WICTextureLoader.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\DirectXTK12\Inc\XboxDDSTextureLoader.h">
+      <Filter>DirectXTK12</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\GraphicResource.h">
+      <Filter>YD3D\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="YD3D_Header.h">
+      <Filter>YD3D</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\YD3D_Define.h">
+      <Filter>YD3D\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\GraphicConstBuffer.hpp">
+      <Filter>YD3D\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\GraphicReadbackBuffer.h">
+      <Filter>YD3D\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\GraphicTexture.h">
+      <Filter>YD3D\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\GraphicUploadBuffer.h">
+      <Filter>YD3D\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\YD3D_Util.h">
+      <Filter>YD3D\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\CommandListAllocator.h">
+      <Filter>YD3D\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\CommandQueue.h">
+      <Filter>YD3D\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\wait_free_queue.hpp">
+      <Filter>YD3D\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Window\YWindow.h">
+      <Filter>YD3D\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\DxFactory.h">
+      <Filter>YD3D\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="TestWindow.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\Scene.h">
+      <Filter>YD3D\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\GraphicIndexBuffer.h">
+      <Filter>YD3D\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\GraphicVertexBuffer.h">
+      <Filter>YD3D\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\Model.h">
+      <Filter>YD3D\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\GraphicResourceHeader.h">
+      <Filter>YD3D\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\ythread.hpp">
+      <Filter>YD3D\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\GraphicTask.h">
+      <Filter>YD3D\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\ystate.hpp">
+      <Filter>YD3D\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\SwapChain.h">
+      <Filter>YD3D\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\GraphicRenderTarget.h">
+      <Filter>YD3D\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource\GraphicDepthStencil.h">
+      <Filter>YD3D\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\DescriptorHeapManager.h">
+      <Filter>YD3D\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph\DescriptorHeap.h">
+      <Filter>YD3D\Graph</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeLine\ResourcePackage.h">
+      <Filter>YD3D\PipeLine</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeLine\PipeLineTemplate.hpp">
+      <Filter>YD3D\PipeLine</Filter>
+    </ClInclude>
+    <ClInclude Include="TestPipeLine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeLine\PassTemplate.hpp">
+      <Filter>YD3D\PipeLine</Filter>
+    </ClInclude>
+    <ClInclude Include="TestPass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Window\YWndowDefine.h">
+      <Filter>YD3D\Window</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\Camera.h">
+      <Filter>YD3D\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Timer.h">
+      <Filter>YD3D\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthPass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper\WICImage.h">
+      <Filter>YD3D\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\Light.h">
+      <Filter>YD3D\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper\GeometricMeshFactory.h">
+      <Filter>YD3D\Helper</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\DirectXTK12\Inc\SimpleMath.inl">
+      <Filter>DirectXTK12</Filter>
+    </None>
+    <None Include="Shader\Common.hlsli">
+      <Filter>YD3D\Shader</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shader\CommonVs.hlsl">
+      <Filter>YD3D\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\ShapePs.hlsl">
+      <Filter>YD3D\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\DepthPassPs.hlsl">
+      <Filter>YD3D\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\DepthPassVs.hlsl">
+      <Filter>YD3D\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\PBR.hlsl">
+      <Filter>YD3D\Shader</Filter>
+    </FxCompile>
+  </ItemGroup>
+</Project>

@@ -81,7 +81,7 @@ float3 DirectPBR(float lightIntensity, float3 lightColor, float3 n, float3 v, fl
     return (diffBRDF + specBRDF) * NdotL * lightIntensity * lightColor * ao;
 }
 
-float3 CaculatePointLight(LightDataStruct light, float3 worldPos, float3 worldNor, float3 cameraPos, float roughness, float metalness, float3 albedo, float ao)
+float3 CalculatePointLight(LightDataStruct light, float3 worldPos, float3 worldNor, float3 cameraPos, float roughness, float metalness, float3 albedo, float ao)
 {
     float distance = length(light.Position - worldPos);
     float lightIntensity = LightFalloff(distance, light.Radius) * light.Intensity;

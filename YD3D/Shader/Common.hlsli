@@ -61,9 +61,13 @@ struct VertexOut
     float4 svPosition			: SV_POSITION;
     float3 WorldPosition		: POSITION1;
     float3 Normal				: NORMAL;
+    float3 Tangent              : TANGENT;
     float4 Color				: COLOR;
     float2 TexCoord				: TEXCOORD;
 };
 
 static const float PI = 3.14159265359;
-
+static const uint MODEL_ALBEDO_INDEX = 0;
+static const uint MODEL_METALLIC_INDEX = 1;
+static const uint MODEL_NORMAL_INDEX = 2;
+static const uint MODEL_ROUGHNESS_INDEX = 3;
