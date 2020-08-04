@@ -92,14 +92,12 @@ namespace YD3D
 
 		if (mState.has_state_strong(VERTEX_INDEX_DIRTY))
 		{
-			uint64_t fenceValue(0);
-			GraphicTask::PostGraphicTask(
+			uint64_t fenceValue = GraphicTask::PostGraphicTask(
 				ECommandQueueType::ECOPY, 
 				[this](ID3D12GraphicsCommandList* commandList)
 				{
-					return GraphicTaskUploadVertexIndexData(commandList);
+					GraphicTaskUploadVertexIndexData(commandList);
 				}, 
-				&fenceValue,
 				[this] (D3D12_COMMAND_LIST_TYPE, uint64_t)
 				{
 					mState.remove_state(VERTEX_INDEX_DIRTY);
@@ -286,7 +284,7 @@ namespace YD3D
 		}
 	}
 
-	bool Scene::GraphicTaskUploadVertexIndexData(ID3D12GraphicsCommandList* commandList)
+	void Scene::GraphicTaskUploadVertexIndexData(ID3D12GraphicsCommandList* commandList)
 	{
 		CD3DX12_RESOURCE_BARRIER barrier[4];
 
@@ -301,8 +299,6 @@ namespace YD3D
 		commandList->CopyBufferRegion(mIndexBuffer.Resource(), 0, mUploadBuffer.Resource(), mVertexBufferLength, mIndexBufferLength);
 
 		commandList->ResourceBarrier(2, &barrier[2]);
-
-		return true;
 	}
 
 }

@@ -150,6 +150,24 @@
     <ClCompile Include="Helper\GeometricMeshFactory.cpp">
       <Filter>YD3D\Helper</Filter>
     </ClCompile>
+    <ClCompile Include="SkyBoxPass.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper\LatLongToCubeMap.cpp">
+      <Filter>YD3D\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\CommonVertexIndexBuffer.cpp">
+      <Filter>YD3D\Util</Filter>
+    </ClCompile>
+    <ClCompile Include="PipeLine\LatLongToCubeMapPass.cpp">
+      <Filter>YD3D\PipeLine</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper\UploadHelper.cpp">
+      <Filter>YD3D\Helper</Filter>
+    </ClCompile>
+    <ClCompile Include="Helper\ReadbackHelper.cpp">
+      <Filter>YD3D\Helper</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\GC\GC\garbage_collection.h">
@@ -365,6 +383,24 @@
     <ClInclude Include="Helper\GeometricMeshFactory.h">
       <Filter>YD3D\Helper</Filter>
     </ClInclude>
+    <ClInclude Include="SkyBoxPass.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper\LatLongToCubeMap.h">
+      <Filter>YD3D\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\CommonVertexIndexBuffer.h">
+      <Filter>YD3D\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="PipeLine\LatLongToCubeMapPass.h">
+      <Filter>YD3D\PipeLine</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper\UploadHelper.h">
+      <Filter>YD3D\Helper</Filter>
+    </ClInclude>
+    <ClInclude Include="Helper\ReadbackHelper.h">
+      <Filter>YD3D\Helper</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\DirectXTK12\Inc\SimpleMath.inl">
@@ -388,6 +424,12 @@
       <Filter>YD3D\Shader</Filter>
     </FxCompile>
     <FxCompile Include="Shader\PBR.hlsl">
+      <Filter>YD3D\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\LatLongToCubeMapPs.hlsl">
+      <Filter>YD3D\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Shader\LatLongToCubeMapVs.hlsl">
       <Filter>YD3D\Shader</Filter>
     </FxCompile>
   </ItemGroup>

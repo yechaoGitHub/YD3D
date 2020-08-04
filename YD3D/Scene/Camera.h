@@ -1,3 +1,4 @@
+#pragma once
 #include "YD3D_Header.h"
 
 namespace YD3D

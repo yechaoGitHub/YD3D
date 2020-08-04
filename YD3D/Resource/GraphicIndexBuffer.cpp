@@ -37,7 +37,7 @@ namespace YD3D
 
 	}
 
-	const D3D12_INDEX_BUFFER_VIEW& GraphicIndexBuffer::IndexView()
+	const D3D12_INDEX_BUFFER_VIEW& GraphicIndexBuffer::IndexView() const
 	{
 		return mIndexBuffer;
 	}

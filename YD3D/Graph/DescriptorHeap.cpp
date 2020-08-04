@@ -2,7 +2,12 @@
 
 namespace YD3D
 {
-	DescriptorHeap::DescriptorHeap()
+	DescriptorHeap::DescriptorHeap():
+		mDevice(nullptr),
+		mDescriptorHeap(nullptr),
+		mDescriptorCount(0),
+		mIncreasement(0),
+		mGcResource(get_gc_allocator<gc_ptr<GraphicResource>>())
 	{
 	}
 
@@ -33,6 +38,12 @@ namespace YD3D
 
 	void DescriptorHeap::Release()
 	{
+		for (auto &pair : mMapSlot)
+		{
+			GraphicResource *res = pair.second;
+			res->ClearDescriptorHeap(this);
+		}
+
 		mDescriptorHeap->Release();
 		mDevice = nullptr;
 		mDescriptorHeap = nullptr;
@@ -132,6 +143,13 @@ namespace YD3D
 			mMapResource.erase(res);
 			mMapSlot.erase(index);
 
+			if (is_gc_managed(res)) 
+			{
+				auto it = std::find(mGcResource.begin(), mGcResource.end(), get_gc_ptr_from_raw(res));
+				assert(it != mGcResource.end());
+				mGcResource.erase(it);
+			}
+
 			return true;
 		}
 		else 
@@ -147,7 +165,7 @@ namespace YD3D
 		bool occupied(false);
 		if (IsOccupied(index, 1, &occupied) && occupied)
 		{
-			return mMapSlot[index].get_raw_ptr();
+			return mMapSlot[index];
 		}
 
 		return nullptr;
@@ -216,8 +234,12 @@ namespace YD3D
 
 	void DescriptorHeap::SetSlot(uint32_t index, GraphicResource* res)
 	{
-		mMapSlot[index] = get_gc_ptr_from_raw(res);
+		mMapSlot[index] = res;
 		mMapResource[res] = index; 
-		get_gc_ptr_from_raw(this).add_member_ptr(mMapSlot[index]);
+
+		if (is_gc_managed(res)) 
+		{
+			mGcResource.push_back(get_gc_ptr_from_raw(res));
+		}
 	}
 };

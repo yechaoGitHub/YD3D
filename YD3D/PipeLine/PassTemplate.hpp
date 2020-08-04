@@ -1,15 +1,13 @@
 #pragma once
 #include "YD3D_Header.h"
+#include "Util/YD3D_Util.h"
 #include "Scene/Scene.h"
 
 namespace YD3D
 {
 	struct PassInitParam
 	{
-		std::vector<D3D12_INPUT_ELEMENT_DESC>	InputLayout;
-		std::vector<DXGI_FORMAT>				RenderTargetFormat;
-		DXGI_FORMAT								DepthStencilFormat;
-		D3D12_PRIMITIVE_TOPOLOGY_TYPE			PrimitiveType;
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC	PSODesc = GetDefaultPSODesc();
 	};
 
 	template<typename TResourcePackage, typename TPassInitParam = PassInitParam>
@@ -62,6 +60,11 @@ namespace YD3D
 		{
 			mScene = scene;
 			return true;
+		}
+
+		operator bool() 
+		{
+			return mPSO != nullptr;
 		}
 
 	protected:
@@ -118,19 +121,9 @@ namespace YD3D
 
 		virtual bool BuildPSO()
 		{
-			D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = {};
-			desc.InputLayout = { mInitParam.InputLayout.data(), (UINT)mInitParam.InputLayout.size() };
+			D3D12_GRAPHICS_PIPELINE_STATE_DESC &desc = mInitParam.PSODesc;
 			desc.pRootSignature = mRootSignature.Get();
-			desc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-			desc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-			desc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-			desc.SampleMask = UINT_MAX;
-			desc.PrimitiveTopologyType = mInitParam.PrimitiveType;
-			desc.NumRenderTargets = mInitParam.RenderTargetFormat.size();
-			desc.RTVFormats[0] = mInitParam.RenderTargetFormat[0];
-			desc.DSVFormat = mInitParam.DepthStencilFormat;
-			desc.SampleDesc.Count = 1;
-
+		
 			if (!mArrShaderResPath[EShaderType::VS].empty())
 			{
 				desc.VS = { mArrShaderRes[EShaderType::VS]->GetBufferPointer(), mArrShaderRes[EShaderType::VS]->GetBufferSize() };

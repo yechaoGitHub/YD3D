@@ -11,7 +11,7 @@ namespace YD3D
 		~GraphicVertexBuffer();
 
 		bool Create(ID3D12Device* device, uint32_t stride,  uint64_t count);
-		const D3D12_VERTEX_BUFFER_VIEW& VertexView();
+		const D3D12_VERTEX_BUFFER_VIEW& VertexView() const;
 		uint64_t BufferLength();
 		void Release() override;
 

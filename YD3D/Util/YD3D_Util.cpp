@@ -20,6 +20,15 @@ namespace YD3D
         return FunctionName + L" failed in " + Filename + L"; line " + std::to_wstring(LineNumber) + L"; error: " + msg;
     }
 
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT GetResourceCopyableFootPrint(ID3D12Resource* res, uint32_t subresourceIndex)
+    {
+        D3D12_PLACED_SUBRESOURCE_FOOTPRINT ret = {};
+        ID3D12Device* dev(nullptr);
+        ThrowIfFailed(res->GetDevice(IID_PPV_ARGS(&dev)));
+        dev->GetCopyableFootprints(&res->GetDesc(), subresourceIndex, 1, 0, &ret, nullptr, nullptr, nullptr);
+        return ret;
+    }
+
     Microsoft::WRL::ComPtr<ID3DBlob> CompileShader(
         const std::wstring& filename,
         const D3D_SHADER_MACRO* defines,

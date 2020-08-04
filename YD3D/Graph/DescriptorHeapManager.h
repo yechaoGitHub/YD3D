@@ -46,10 +46,10 @@ namespace YD3D
 	private:
 		ID3D12Device* mDevice;
 		
-		gc_ptr<DescriptorHeap>	mCbvSrvUavHeap;
-		gc_ptr<DescriptorHeap>	mRtHeap;
-		gc_ptr<DescriptorHeap>	mDsHeap;
-		gc_ptr<DescriptorHeap>	mSamplerHeap;
+		DescriptorHeap	mCbvSrvUavHeap;
+		DescriptorHeap	mRtHeap;
+		DescriptorHeap	mDsHeap;
+		DescriptorHeap	mSamplerHeap;
 
 		static DescriptorHeapManager* _GOBAL_DESCRIPTOR_HEAP_MANAGER_;
 	};

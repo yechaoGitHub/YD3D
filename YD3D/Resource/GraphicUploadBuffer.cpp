@@ -30,13 +30,13 @@ namespace YD3D
 		if (ret & autoMapped)
 		{
 			mBufferLength = length;
-			mMappedData = reinterpret_cast<BYTE*>(Map(0, nullptr));
+			mMappedData = reinterpret_cast<uint8_t*>(Map(0, nullptr));
 		}
 
 		return  ret;
 	}
 
-	bool GraphicUploadBuffer::CopyData(uint64_t Offset, const BYTE* data, uint64_t lenght)
+	bool GraphicUploadBuffer::CopyData(uint64_t Offset, const uint8_t* data, uint64_t lenght)
 	{
 		if (mMappedData)
 		{

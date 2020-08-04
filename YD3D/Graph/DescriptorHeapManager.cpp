@@ -16,15 +16,11 @@ namespace YD3D
 	bool DescriptorHeapManager::Create(ID3D12Device* device, uint32_t count)
 	{
 		mDevice = device;
-		mCbvSrvUavHeap.assign(new DescriptorHeap);
-		mRtHeap.assign(new DescriptorHeap);
-		mDsHeap.assign(new DescriptorHeap);
-		mSamplerHeap.assign(new DescriptorHeap);
 
-		assert(mCbvSrvUavHeap->Create(mDevice, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, count, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE));
-		assert(mRtHeap->Create(mDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, count, D3D12_DESCRIPTOR_HEAP_FLAG_NONE));
-		assert(mDsHeap->Create(mDevice, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, count, D3D12_DESCRIPTOR_HEAP_FLAG_NONE));
-		assert(mSamplerHeap->Create(mDevice, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, count, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE));
+		assert(mCbvSrvUavHeap.Create(mDevice, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, count, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE));
+		assert(mRtHeap.Create(mDevice, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, count, D3D12_DESCRIPTOR_HEAP_FLAG_NONE));
+		assert(mDsHeap.Create(mDevice, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, count, D3D12_DESCRIPTOR_HEAP_FLAG_NONE));
+		assert(mSamplerHeap.Create(mDevice, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, count, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE));
 
 		return true;
 	}
@@ -33,30 +29,30 @@ namespace YD3D
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
-			if (!mCbvSrvUavHeap->FindFreeSlot(1, &index)) 
+			if (!mCbvSrvUavHeap.FindFreeSlot(1, &index)) 
 			{
 				return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 			}
 		}
 
 		bool occupied(false);
-		if (mCbvSrvUavHeap->IsOccupied(index, 1, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
+		if (mCbvSrvUavHeap.IsOccupied(index, 1, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mCbvSrvUavHeap->GetCpuHandle(index);
-		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mCbvSrvUavHeap->GetGpuHandle(index);
+		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mCbvSrvUavHeap.GetCpuHandle(index);
+		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mCbvSrvUavHeap.GetGpuHandle(index);
 		
 		mDevice->CreateConstantBufferView(view, cpuHandle);
-		mCbvSrvUavHeap->SetSlot(index, res);
+		mCbvSrvUavHeap.SetSlot(index, res);
 
 		DescriptorHandle descHandle;
-		descHandle.mType = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		descHandle.mDescriptorHeap = mCbvSrvUavHeap;
-		descHandle.mCpuHandle = cpuHandle;
-		descHandle.mGpuHandle = gpuHandle;
-		descHandle.mSlotIndex = index;
+		descHandle.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		descHandle.DescriptorHeap = &mCbvSrvUavHeap;
+		descHandle.CpuHandle = cpuHandle;
+		descHandle.GpuHandle = gpuHandle;
+		descHandle.SlotIndex = index;
 		if (view) 
 		{
-			descHandle.mView.ConstBufferView = *view;
+			descHandle.View.ConstBufferView = *view;
 		}
 		res->InsertBindDescriptor(descHandle);
 
@@ -67,14 +63,14 @@ namespace YD3D
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
-			if (!mCbvSrvUavHeap->FindFreeSlot(count, &index))
+			if (!mCbvSrvUavHeap.FindFreeSlot(count, &index))
 			{
 				return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 			}
 		}
 
 		bool occupied(false);
-		if (mCbvSrvUavHeap->IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
+		if (mCbvSrvUavHeap.IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
 		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindCbView(index, res[0], vecView);
 		for (UINT i = 1; i < count; i++)
@@ -89,30 +85,30 @@ namespace YD3D
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
-			if (!mCbvSrvUavHeap->FindFreeSlot(1, &index))
+			if (!mCbvSrvUavHeap.FindFreeSlot(1, &index))
 			{
 				return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 			}
 		}
 
 		bool occupied(false);
-		if (mCbvSrvUavHeap->IsOccupied(index, 1, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
+		if (mCbvSrvUavHeap.IsOccupied(index, 1, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mCbvSrvUavHeap->GetCpuHandle(index);
-		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mCbvSrvUavHeap->GetGpuHandle(index);
+		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mCbvSrvUavHeap.GetCpuHandle(index);
+		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mCbvSrvUavHeap.GetGpuHandle(index);
 
 		mDevice->CreateShaderResourceView(res->Resource(), view, cpuHandle);
-		mCbvSrvUavHeap->SetSlot(index, res);
+		mCbvSrvUavHeap.SetSlot(index, res);
 
 		DescriptorHandle descHandle;
-		descHandle.mType = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		descHandle.mDescriptorHeap = mCbvSrvUavHeap;
-		descHandle.mCpuHandle = cpuHandle;
-		descHandle.mGpuHandle = gpuHandle;
-		descHandle.mSlotIndex = index;
+		descHandle.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		descHandle.DescriptorHeap = &mCbvSrvUavHeap;
+		descHandle.CpuHandle = cpuHandle;
+		descHandle.GpuHandle = gpuHandle;
+		descHandle.SlotIndex = index;
 		if (view)
 		{
-			descHandle.mView.ShaderResourceView = *view;
+			descHandle.View.ShaderResourceView = *view;
 		}
 		res->InsertBindDescriptor(descHandle);
 
@@ -123,14 +119,14 @@ namespace YD3D
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
-			if (!mCbvSrvUavHeap->FindFreeSlot(count, &index))
+			if (!mCbvSrvUavHeap.FindFreeSlot(count, &index))
 			{
 				return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 			}
 		}
 
 		bool occupied(false);
-		if (mCbvSrvUavHeap->IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
+		if (mCbvSrvUavHeap.IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
 		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindSrView(index, vecRes[0], vecView);
 		for (uint32_t i = 1; i < count; i++)
@@ -145,30 +141,30 @@ namespace YD3D
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
-			if (!mCbvSrvUavHeap->FindFreeSlot(1, &index))
+			if (!mCbvSrvUavHeap.FindFreeSlot(1, &index))
 			{
 				return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 			}
 		}
 
 		bool occupied(false);
-		if (mCbvSrvUavHeap->IsOccupied(index, 1, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
+		if (mCbvSrvUavHeap.IsOccupied(index, 1, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mCbvSrvUavHeap->GetCpuHandle(index);
-		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mCbvSrvUavHeap->GetGpuHandle(index);
+		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mCbvSrvUavHeap.GetCpuHandle(index);
+		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mCbvSrvUavHeap.GetGpuHandle(index);
 
 		mDevice->CreateUnorderedAccessView(res->Resource(), countRes->Resource(), view, cpuHandle);
-		mCbvSrvUavHeap->SetSlot(index, res);
+		mCbvSrvUavHeap.SetSlot(index, res);
 
 		DescriptorHandle descHandle;
-		descHandle.mType = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-		descHandle.mDescriptorHeap = mCbvSrvUavHeap;
-		descHandle.mCpuHandle = cpuHandle;
-		descHandle.mGpuHandle = gpuHandle;
-		descHandle.mSlotIndex = index;
+		descHandle.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		descHandle.DescriptorHeap = &mCbvSrvUavHeap;
+		descHandle.CpuHandle = cpuHandle;
+		descHandle.GpuHandle = gpuHandle;
+		descHandle.SlotIndex = index;
 		if (view)
 		{
-			descHandle.mView.UnorderedAccessView = *view;
+			descHandle.View.UnorderedAccessView = *view;
 		}
 		res->InsertBindDescriptor(descHandle);
 
@@ -179,14 +175,14 @@ namespace YD3D
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
-			if (!mCbvSrvUavHeap->FindFreeSlot(count, &index))
+			if (!mCbvSrvUavHeap.FindFreeSlot(count, &index))
 			{
 				return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 			}
 		}
 
 		bool occupied(false);
-		if (mCbvSrvUavHeap->IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
+		if (mCbvSrvUavHeap.IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
 		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindUaView(index, arrRes[0], arrCountRes[0], vecView);
 		for (uint32_t i = 1; i < count; i++)
@@ -201,30 +197,30 @@ namespace YD3D
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
-			if (!mRtHeap->FindFreeSlot(1, &index))
+			if (!mRtHeap.FindFreeSlot(1, &index))
 			{
 				return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 			}
 		}
 
 		bool occupied(false);
-		if (mRtHeap->IsOccupied(index, 1, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
+		if (mRtHeap.IsOccupied(index, 1, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mRtHeap->GetCpuHandle(index);
-		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mRtHeap->GetGpuHandle(index);
+		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mRtHeap.GetCpuHandle(index);
+		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mRtHeap.GetGpuHandle(index);
 
 		mDevice->CreateRenderTargetView(res->Resource(), view, cpuHandle);
-		mRtHeap->SetSlot(index, res);
+		mRtHeap.SetSlot(index, res);
 
 		DescriptorHandle descHandle;
-		descHandle.mType = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-		descHandle.mDescriptorHeap = mRtHeap;
-		descHandle.mCpuHandle = cpuHandle;
-		descHandle.mGpuHandle = gpuHandle;
-		descHandle.mSlotIndex = index;
+		descHandle.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		descHandle.DescriptorHeap = &mRtHeap;
+		descHandle.CpuHandle = cpuHandle;
+		descHandle.GpuHandle = gpuHandle;
+		descHandle.SlotIndex = index;
 		if (view)
 		{
-			descHandle.mView.RenderTargetView = *view;
+			descHandle.View.RenderTargetView = *view;
 		}
 		res->InsertBindDescriptor(descHandle);
 
@@ -235,14 +231,14 @@ namespace YD3D
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
-			if (!mRtHeap->FindFreeSlot(count, &index))
+			if (!mRtHeap.FindFreeSlot(count, &index))
 			{
 				return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 			}
 		}
 
 		bool occupied(false);
-		if (mRtHeap->IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
+		if (mRtHeap.IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
 		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindRtView(index, arrRes[0], vecView);
 		for (UINT i = 1; i < count; i++)
@@ -257,29 +253,29 @@ namespace YD3D
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
-			if (!mDsHeap->FindFreeSlot(1, &index))
+			if (!mDsHeap.FindFreeSlot(1, &index))
 			{
 				return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 			}
 		}
 
 		bool occupied(false);
-		if (mDsHeap->IsOccupied(index, 1, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
+		if (mDsHeap.IsOccupied(index, 1, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
-		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mDsHeap->GetCpuHandle(index);
-		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mDsHeap->GetGpuHandle(index);
+		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = mDsHeap.GetCpuHandle(index);
+		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = mDsHeap.GetGpuHandle(index);
 		mDevice->CreateDepthStencilView(res->Resource(), view, cpuHandle);
-		mDsHeap->SetSlot(index, res);
+		mDsHeap.SetSlot(index, res);
 
 		DescriptorHandle descHandle;
-		descHandle.mType = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
-		descHandle.mDescriptorHeap = mDsHeap;
-		descHandle.mCpuHandle = cpuHandle;
-		descHandle.mGpuHandle = gpuHandle;
-		descHandle.mSlotIndex = index;
+		descHandle.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		descHandle.DescriptorHeap = &mDsHeap;
+		descHandle.CpuHandle = cpuHandle;
+		descHandle.GpuHandle = gpuHandle;
+		descHandle.SlotIndex = index;
 		if (view)
 		{
-			descHandle.mView.DepthStencilView = *view;
+			descHandle.View.DepthStencilView = *view;
 		}
 		res->InsertBindDescriptor(descHandle);
 
@@ -290,14 +286,14 @@ namespace YD3D
 	{
 		if (index == ANY_DESCRIPTOR_HEAP_POS)
 		{
-			if (!mDsHeap->FindFreeSlot(count, &index))
+			if (!mDsHeap.FindFreeSlot(count, &index))
 			{
 				return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 			}
 		}
 
 		bool occupied(false);
-		if (mDsHeap->IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
+		if (mDsHeap.IsOccupied(index, count, &occupied) && occupied) return D3D12_CPU_DESCRIPTOR_HANDLE{ 0 };
 
 		D3D12_CPU_DESCRIPTOR_HANDLE handle = BindDsView(index, arrRes[0], vecView);
 		for (UINT i = 0; i < count; i++)
@@ -340,10 +336,10 @@ namespace YD3D
 
 	bool DescriptorHeapManager::RemoveAllView(GraphicResource *res)
 	{
-		mCbvSrvUavHeap->RemoveView(res);
-		mRtHeap->RemoveView(res);
-		mDsHeap->RemoveView(res);
-		mSamplerHeap->RemoveView(res);
+		mCbvSrvUavHeap.RemoveView(res);
+		mRtHeap.RemoveView(res);
+		mDsHeap.RemoveView(res);
+		mSamplerHeap.RemoveView(res);
 
 		return true;
 	}
@@ -363,16 +359,16 @@ namespace YD3D
 		switch (type)
 		{
 			case D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV:
-				return mCbvSrvUavHeap.get_raw_ptr();
+				return &mCbvSrvUavHeap;
 
 			case D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER:
-				return mSamplerHeap.get_raw_ptr();
+				return &mSamplerHeap;
 
 			case D3D12_DESCRIPTOR_HEAP_TYPE_RTV:
-				return mRtHeap.get_raw_ptr();
+				return &mRtHeap;
 
 			case D3D12_DESCRIPTOR_HEAP_TYPE_DSV:
-				return mDsHeap.get_raw_ptr();
+				return &mDsHeap;
 
 			default:
 				assert(0);

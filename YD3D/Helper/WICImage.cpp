@@ -83,22 +83,22 @@ namespace YD3D
 		mData = nullptr;
 	}
 
-	uint32_t WICImage::Width()
+	uint32_t WICImage::Width() const
 	{
 		return mWidth;
 	}
 
-	uint32_t WICImage::Height()
+	uint32_t WICImage::Height() const
 	{
 		return mHeight;
 	}
 
-	uint32_t WICImage::Size()
+	uint32_t WICImage::Size() const
 	{
 		return mByteSize;
 	}
 
-	uint8_t* WICImage::Data()
+	const uint8_t* WICImage::Data() const
 	{
 		return mData;
 	}

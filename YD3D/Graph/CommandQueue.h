@@ -18,8 +18,8 @@ namespace YD3D
 		bool Create(ID3D12Device* device, D3D12_COMMAND_LIST_TYPE commandQueueType, D3D12_COMMAND_QUEUE_FLAGS commandQueueFlag);
 
 		ID3D12CommandQueue* Queue();
-		bool PostCommandList(uint32_t count, ID3D12GraphicsCommandList** commandList, uint64_t* fenceValue);
-		bool PostCommandList(uint32_t count, ID3D12GraphicsCommandList** commandList, uint64_t* fenceValue, CommandQueueCallbackFunction&& completionCallback);
+		uint64_t PostCommandList(uint32_t count, ID3D12GraphicsCommandList** commandList);
+		uint64_t PostCommandList(uint32_t count, ID3D12GraphicsCommandList** commandList, CommandQueueCallbackFunction&& completionCallback);
 		bool WaitForCompletion(uint64_t fenceValue, bool waitForCallback = true);
 
 	private:

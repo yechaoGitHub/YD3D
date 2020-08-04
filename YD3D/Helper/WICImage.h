@@ -15,10 +15,10 @@ namespace YD3D
 		bool OpenImageFile(const std::wstring& filePath);
 		void Release();
 
-		uint32_t		Width();
-		uint32_t		Height();
-		uint32_t		Size();
-		uint8_t*		Data();
+		uint32_t		Width() const;
+		uint32_t		Height() const;
+		uint32_t		Size() const;
+		const uint8_t*	Data() const;
 		
 	private:
 		static Microsoft::WRL::ComPtr<IWICImagingFactory>	_WIC_IMAGE_FACTORY_;

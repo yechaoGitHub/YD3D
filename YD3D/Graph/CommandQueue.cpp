@@ -42,29 +42,20 @@ namespace YD3D
 		return mCommandQueue.Get();
 	}
 
-	bool CommandQueue::PostCommandList(uint32_t count, ID3D12GraphicsCommandList** commandList, uint64_t* fenceValue)
+	uint64_t CommandQueue::PostCommandList(uint32_t count, ID3D12GraphicsCommandList** commandList)
 	{
 		uint64_t nxtFenceValue = mCmdQueue.enqueue_range(commandList, count);
 		mIdleQueueCount = 0;
 		mQueueConVar.notify_one();
-		if (fenceValue)
-		{
-			*fenceValue = nxtFenceValue + count;
-		}
-
-		return true;
+		return nxtFenceValue + count;
 	}
 
-	bool CommandQueue::PostCommandList(uint32_t count, ID3D12GraphicsCommandList** commandList, uint64_t* fenceValue, CommandQueueCallbackFunction&& completionCallback)
+	uint64_t CommandQueue::PostCommandList(uint32_t count, ID3D12GraphicsCommandList** commandList, CommandQueueCallbackFunction&& completionCallback)
 	{
 		uint64_t nxtFenceValue = mCmdQueue.enqueue_range(commandList, count);
 		mIdleQueueCount = 0;
 		mQueueConVar.notify_one();
-		if (fenceValue)
-		{
-			*fenceValue = nxtFenceValue + count;
-		}
-
+	
 		CompletionCallback callback;
 		callback.fenceValue = nxtFenceValue + count;
 		callback.completionCallback = std::move(completionCallback);
@@ -73,7 +64,7 @@ namespace YD3D
 		mIdleCallbackCount = 0;
 		mCallbackConVar.notify_one();
 
-		return true;
+		return nxtFenceValue + count;;
 	}
 
 	bool CommandQueue::WaitForCompletion(uint64_t fenceValue, bool waitForCallback)
