@@ -3,4 +3,6 @@
 	url = https://github.com/yechaoGitHub/GC
 [submodule "DirectXTK12"]
 	path = DirectXTK12
-	url = https://github.com/microsoft/DirectXTK12
+	url = https://github.com/Microsoft/DirectXTK12
+	
+	
