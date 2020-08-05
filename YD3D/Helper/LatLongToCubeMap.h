@@ -23,6 +23,7 @@ namespace YD3D
 		GraphicTexture				mLatLongTexture;
 		GraphicRenderTarget			mRendetTarget;
 		LatLongToCubeMapPass		mPass;
+		WICImage					mImage[6];
 
 		void SetUp(const WICImage& latLongImage, uint32_t width, uint32_t height);
 		void LatLongToCubeMapTask(ID3D12GraphicsCommandList *commandList);

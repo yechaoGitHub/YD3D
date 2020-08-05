@@ -10,7 +10,7 @@ namespace YD3D
 	{
 		LatLongToCubeMapInitParam() 
 		{
-			PSODesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+			PSODesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
 		}
 	};
 
@@ -18,7 +18,6 @@ namespace YD3D
 	{
 		GraphicTexture				*LatLongTexture;
 		GraphicRenderTarget			*RenderTarget;
-		GraphicDepthStencil			*DepthStencil;
 	};
 
 	struct LatLongToCubeMapCbBuffer 
@@ -48,7 +47,7 @@ namespace YD3D
 		void SetSize(uint32_t width, uint32_t height);
 		void InitViewProjMatrix();
 		bool PopulateCommandList(LatLongToCubeMapRenderItem* package, ID3D12GraphicsCommandList* commandList) override;
-		bool PopulateCommandList(GraphicTexture* latLongTexture, GraphicRenderTarget* renderTarget, GraphicDepthStencil *depthStencil, ID3D12GraphicsCommandList* commandList);
+		bool PopulateCommandList(GraphicTexture* latLongTexture, GraphicRenderTarget* renderTarget, ID3D12GraphicsCommandList* commandList);
 
 	private:
 		Camera												mCamera;

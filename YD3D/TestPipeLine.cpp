@@ -55,7 +55,7 @@ bool TestPipeLine::PopulateCommandList(TestResourcePackage* package, ID3D12Graph
 	//mDepthPass.PopulateCommandList(&package->DepthItem, commandList);
 
 	mLatLongPass.SetSize(1024, 1024);
-	mLatLongPass.SetViewProjIndex(EFRONT);
+	mLatLongPass.SetViewProjIndex(ELEFT);
 	mLatLongPass.PopulateCommandList(&package->LatlongItem, commandList);
 
 	//PopulateEndPipeLine(package, commandList);

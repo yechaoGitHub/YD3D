@@ -121,6 +121,11 @@ void TestWindow::InitScence()
 	mLatlongImage.OpenImageFile(L"DemoResource/Ice_Lake_HiRes_TMap.jpg");
 	mLatLongResource.Create(mDxFactory.Device(), mLatlongImage.Width(), mLatlongImage.Height());
 
+	LatLongToCubeMap CubeMapHelper;
+	CubeMapHelper.GenerateCubeMap(_D3D12DEVICE_, mLatlongImage, 1024, 1024);
+
+
+
 	UploadHelper::UploadTexture(&mLatLongResource, 0, mLatlongImage.Data(), mLatlongImage.Size());
 
 	DescriptorHeapManager::GobalDescriptorHeapManager()->BindSrView(ANY_DESCRIPTOR_HEAP_POS,  &mLatLongResource, nullptr);
@@ -171,7 +176,6 @@ void TestWindow::InitResource()
 	mPackage->State.bind_callback(std::bind(&TestWindow::ResourcePackageCallback, this, std::placeholders::_1, std::placeholders::_2));
 
 	mPackage->LatlongItem.LatLongTexture = &mLatLongResource;
-	mPackage->LatlongItem.DepthStencil = mDs.get_raw_ptr();
 
 	mPipeLine.SetScene(mScene.get_raw_ptr());
 	mPipeLine.PostResourcePackage(mPackage.get_raw_ptr());

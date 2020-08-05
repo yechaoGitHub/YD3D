@@ -123,10 +123,10 @@ namespace YD3D
 
 	bool LatLongToCubeMapPass::PopulateCommandList(LatLongToCubeMapRenderItem* package, ID3D12GraphicsCommandList* commandList)
 	{
-		return PopulateCommandList(package->LatLongTexture, package->RenderTarget, package->DepthStencil, commandList);
+		return PopulateCommandList(package->LatLongTexture, package->RenderTarget, commandList);
 	}
 
-	bool LatLongToCubeMapPass::PopulateCommandList(GraphicTexture* latLongTexture, GraphicRenderTarget* renderTarget, GraphicDepthStencil* depthStencil, ID3D12GraphicsCommandList* commandList)
+	bool LatLongToCubeMapPass::PopulateCommandList(GraphicTexture* latLongTexture, GraphicRenderTarget* renderTarget, ID3D12GraphicsCommandList* commandList)
 	{
 		ID3D12DescriptorHeap* heap[] = { DescriptorHeapManager::GobalDescriptorHeapManager()->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)->Descriptor() };
 		D3D12_GPU_DESCRIPTOR_HANDLE LatLongTexhandle = latLongTexture->GetGpuDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
@@ -142,9 +142,8 @@ namespace YD3D
 		commandList->SetGraphicsRootSignature(mRootSignature.Get());
 		commandList->SetDescriptorHeaps(1, heap);
 
-		commandList->OMSetRenderTargets(1, &rtHandle, true, &depthStencil->GetCpuDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE_DSV));
-		commandList->ClearDepthStencilView(depthStencil->GetCpuDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE_DSV), D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
-		
+		commandList->OMSetRenderTargets(1, &rtHandle, true, nullptr);
+
 		commandList->IASetVertexBuffers(0, 1, &mVertexBuffer.VertexView());
 		commandList->IASetIndexBuffer(&mIndexBuffer.IndexView());
 

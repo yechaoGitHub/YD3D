@@ -29,6 +29,21 @@ namespace YD3D
 			IID_PPV_ARGS(&_WIC_IMAGE_FACTORY_)));
 	}
 
+	bool WICImage::LoadFromRaw(uint32_t width, uint32_t height, uint32_t rowPitch, const uint8_t * data)
+	{
+		ThrowIfFailed(_WIC_IMAGE_FACTORY_->CreateBitmapFromMemory(
+			width, 
+			height, 
+			GUID_WICPixelFormat32bppRGBA, 
+			rowPitch, 
+			rowPitch * height, 
+			const_cast<uint8_t*>(data), 
+			&mBitmap));
+
+
+		return true;
+	}
+
 	bool WICImage::OpenImageFile(const std::wstring& filePath)
 	{
 		ThrowIfFailed(_WIC_IMAGE_FACTORY_->CreateDecoderFromFilename(
@@ -67,6 +82,16 @@ namespace YD3D
 		ThrowIfFailed(mBitmapLock->GetDataPointer(&mByteSize, &mData));
 
 		mFilePath = filePath;
+
+		return true;
+	}
+
+	bool WICImage::SaveFile(const std::string &filePath)
+	{
+		Microsoft::WRL::ComPtr<IWICBitmapEncoder> spBitmapEncoder;
+		Microsoft::WRL::ComPtr<IWICBitmapFrameEncode> spFrameEncode;
+
+	
 
 		return true;
 	}

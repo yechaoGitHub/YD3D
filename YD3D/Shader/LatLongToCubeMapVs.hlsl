@@ -1,7 +1,8 @@
 
 cbuffer viewInfo : register(b0)
 {
-    float4x4 ViewProMatrix;
+    float4x4	ViewProMatrix[6];
+	uint		vpMatrixIndex;
 };
 
 struct VertexIn
@@ -23,7 +24,7 @@ VertexOut main(VertexIn vin)
 {
     VertexOut vout = (VertexOut)0.0f;
     vout.Position = vin.Position;
-    vout.svPosition = mul(ViewProMatrix, float4(vin.Position, 1.0f));
+    vout.svPosition = mul(ViewProMatrix[vpMatrixIndex], float4(vin.Position, 1.0f));
     
     return vout;
 }
