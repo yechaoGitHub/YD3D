@@ -198,4 +198,10 @@ namespace YD3D
         const std::string& entrypoint,
         const std::string& target);
 
+
+	inline uint64_t Align(uint64_t num, uint64_t alignNum) 
+	{
+		return ((num + alignNum - 1) / alignNum) * alignNum;
+	}
+
 };

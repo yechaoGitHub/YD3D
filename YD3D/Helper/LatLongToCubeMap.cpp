@@ -26,9 +26,11 @@ namespace YD3D
 		GraphicTask::WaitForGraphicTaskCompletion(ECommandQueueType::ERENDER, fenceValue);
 
 		uint64_t rtSize = mRendetTarget.GetResByteSize();
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT footPrint = GetResourceCopyableFootPrint(mRendetTarget.Resource(), 0);
 		uint8_t *data = mReadbackBuffer.Map(0, nullptr);
 
-
+		mImage[0].LoadFromMemory(footPrint.Footprint.Width, footPrint.Footprint.Height, footPrint.Footprint.RowPitch, data);
+		mImage[0].SaveFile(L"./t.png");
 
 		mReadbackBuffer.Unmap(0, nullptr);
 
@@ -96,19 +98,19 @@ namespace YD3D
 
 		ID3D12Resource* rtResource = mRendetTarget.Resource();
 		CD3DX12_TEXTURE_COPY_LOCATION readbackSrc(rtResource, 0);
-		D3D12_PLACED_SUBRESOURCE_FOOTPRINT &&footPrint = GetResourceCopyableFootPrint(latLongResource, 0);
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT &&footPrint = GetResourceCopyableFootPrint(mRendetTarget.Resource(), 0);
 		uint64_t rtSize = mRendetTarget.GetResByteSize();
 		CD3DX12_TEXTURE_COPY_LOCATION readbackDest(mReadbackBuffer.Resource(), footPrint);
 
 		for (uint32_t i = ERIGHT; i <= EFRONT; i++)
 		{
-			mPass.SetViewProjIndex(static_cast<ECubeCameraDirection>(i));
+			mPass.SetViewProjIndex(static_cast<ECubeCameraDirection>(0));
 			mPass.PopulateCommandList(&mLatLongTexture, &mRendetTarget, commandList);
 
-			footPrint.Offset += ((rtSize + 511) / 512) * 512;
 			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(rtResource, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_SOURCE));
 			commandList->CopyTextureRegion(&readbackDest, 0, 0, 0, &readbackSrc, nullptr);
 			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(rtResource, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COMMON));
+			footPrint.Offset += Align(rtSize, 512);
 		}
 	}
 

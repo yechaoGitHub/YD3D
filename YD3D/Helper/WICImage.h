@@ -12,9 +12,9 @@ namespace YD3D
 
 		static void Initialize();
 
-		bool LoadFromRaw(uint32_t width, uint32_t height, uint32_t rowPitch, const uint8_t *data);
+		bool LoadFromMemory(uint32_t width, uint32_t height, uint32_t rowPitch, const uint8_t *data);
 		bool OpenImageFile(const std::wstring& filePath);
-		bool SaveFile(const std::string &filePath);
+		bool SaveFile(const std::wstring &filePath);
 		void Release();
 
 		uint32_t		Width() const;
@@ -24,8 +24,6 @@ namespace YD3D
 		
 	private:
 		static Microsoft::WRL::ComPtr<IWICImagingFactory>	_WIC_IMAGE_FACTORY_;
-		Microsoft::WRL::ComPtr<IWICBitmapDecoder>			mDecoder;
-		Microsoft::WRL::ComPtr<IWICBitmapFrameDecode>		mFrame;
 		Microsoft::WRL::ComPtr<IWICBitmap>					mBitmap;
 		Microsoft::WRL::ComPtr<IWICBitmapLock>				mBitmapLock;
 		WICPixelFormatGUID									mPixelFormat;
