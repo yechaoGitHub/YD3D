@@ -20,18 +20,6 @@ namespace YD3D
 		GraphicRenderTarget			*RenderTarget;
 	};
 
-	struct LatLongToCubeMapCbBuffer 
-	{
-		LatLongToCubeMapCbBuffer() :
-			ViewProjMatrix{},
-			MatrixIndex(0)
-		{
-		}
-
-		DirectX::XMFLOAT4X4 ViewProjMatrix[6];
-		uint32_t			MatrixIndex;
-	};
-
 	enum ECubeCameraDirection { ERIGHT, ELEFT, ETOP, EBOTTOM, EBACK, EFRONT };
 
 	class LatLongToCubeMapPass : public PassTemplate<LatLongToCubeMapRenderItem, LatLongToCubeMapInitParam>
@@ -51,7 +39,8 @@ namespace YD3D
 
 	private:
 		Camera												mCamera;
-		GraphicConstBuffer<LatLongToCubeMapCbBuffer>		mCbBuffer;
+		GraphicConstBuffer<DirectX::XMFLOAT4X4>				mCbBuffer;
+		uint32_t											mCurMatrixIndex;
 		GraphicVertexBuffer									mVertexBuffer;
 		GraphicIndexBuffer									mIndexBuffer;
 		GraphicUploadBuffer									mUploadBuffer;

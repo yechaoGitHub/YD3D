@@ -11,7 +11,8 @@ namespace YD3D
 		LatLongToCubeMap();
 		~LatLongToCubeMap();
 		
-		bool GenerateCubeMap(ID3D12Device* device, const WICImage& latLongImage, uint32_t width, uint32_t height);
+		bool GenerateCubeMap(ID3D12Device* device, const WICImage& latLongImage, uint32_t width, uint32_t height, const std::wstring& savePath);
+
 
 	private:
 		ID3D12Device*				mDevice;

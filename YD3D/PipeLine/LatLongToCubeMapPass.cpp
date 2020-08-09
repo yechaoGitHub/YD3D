@@ -10,6 +10,7 @@ using namespace DirectX;
 namespace YD3D
 {
 	LatLongToCubeMapPass::LatLongToCubeMapPass() :
+		mCurMatrixIndex(0),
 		mPreIndexCount(0),
 		mWidth(0),
 		mHeight(0)
@@ -26,7 +27,7 @@ namespace YD3D
 	{
 		Super::Create(device, initParam);
 		mCamera.SetLens(0.5 * Pi, 1, 0.1f, 10.0f);
-		mCbBuffer.Create(device, 1);
+		mCbBuffer.Create(device, 6);
 
 		MeshData &&meshData = GeometricMeshFactory::CreateBox(XMFLOAT3(1.0f, 1.0f, 1.0f), true);
 		uint64_t vertexSize = meshData.Vertices.size() * sizeof(Vertex);
@@ -74,8 +75,7 @@ namespace YD3D
 
 	void LatLongToCubeMapPass::SetViewProjIndex(ECubeCameraDirection direction)
 	{
-		LatLongToCubeMapCbBuffer* cbBuffer = reinterpret_cast<LatLongToCubeMapCbBuffer*>(mCbBuffer.GetMappedPointer());
-		cbBuffer->MatrixIndex = direction;
+		mCurMatrixIndex = direction;
 	}
 
 	void LatLongToCubeMapPass::SetSize(uint32_t width, uint32_t height)
@@ -86,39 +86,43 @@ namespace YD3D
 
 	void LatLongToCubeMapPass::InitViewProjMatrix()
 	{
-		LatLongToCubeMapCbBuffer* cbBuffer = reinterpret_cast<LatLongToCubeMapCbBuffer*>(mCbBuffer.GetMappedPointer());
+		DirectX::XMFLOAT4X4 tmpFloat4x4;
 
 		//RIGHT:
 		mCamera.LookAt(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(1.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, -1.0f, 0.0f));
 		mCamera.UpdateViewMatrix();
-		XMStoreFloat4x4(&cbBuffer->ViewProjMatrix[0], mCamera.GetView() * mCamera.GetProj());
+		XMStoreFloat4x4(&tmpFloat4x4, mCamera.GetView() * mCamera.GetProj());
+		mCbBuffer.Update(0, tmpFloat4x4);
 
 		// LEFT
 		mCamera.LookAt(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(-1.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, -1.0f, 0.0f));
 		mCamera.UpdateViewMatrix();
-		XMStoreFloat4x4(&cbBuffer->ViewProjMatrix[1], mCamera.GetView() * mCamera.GetProj());
+		XMStoreFloat4x4(&tmpFloat4x4, mCamera.GetView() * mCamera.GetProj());
+		mCbBuffer.Update(1, tmpFloat4x4);
 
 		// TOP
 		mCamera.LookAt(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 1.0f));
 		mCamera.UpdateViewMatrix();
-		XMStoreFloat4x4(&cbBuffer->ViewProjMatrix[2], mCamera.GetView() * mCamera.GetProj());
+		XMStoreFloat4x4(&tmpFloat4x4, mCamera.GetView() * mCamera.GetProj());
+		mCbBuffer.Update(2, tmpFloat4x4);
 
 		// BOTTOM
 		mCamera.LookAt(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, -1.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, -1.0f));
 		mCamera.UpdateViewMatrix();
-		XMStoreFloat4x4(&cbBuffer->ViewProjMatrix[3], mCamera.GetView() * mCamera.GetProj());
+		XMStoreFloat4x4(&tmpFloat4x4, mCamera.GetView() * mCamera.GetProj());
+		mCbBuffer.Update(3, tmpFloat4x4);
 
 		// BACK
 		mCamera.LookAt(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f));
 		mCamera.UpdateViewMatrix();
-		XMStoreFloat4x4(&cbBuffer->ViewProjMatrix[4], mCamera.GetView() * mCamera.GetProj());
+		XMStoreFloat4x4(&tmpFloat4x4, mCamera.GetView() * mCamera.GetProj());
+		mCbBuffer.Update(4, tmpFloat4x4);
 
 		// FRONT
 		mCamera.LookAt(XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, -1.0f), XMFLOAT3(0.0f, -1.0f, 0.0f));
 		mCamera.UpdateViewMatrix();
-		XMStoreFloat4x4(&cbBuffer->ViewProjMatrix[5], mCamera.GetView() * mCamera.GetProj());
-
-		cbBuffer->MatrixIndex = 0;
+		XMStoreFloat4x4(&tmpFloat4x4, mCamera.GetView() * mCamera.GetProj());
+		mCbBuffer.Update(5, tmpFloat4x4);
 	}
 
 	bool LatLongToCubeMapPass::PopulateCommandList(LatLongToCubeMapRenderItem* package, ID3D12GraphicsCommandList* commandList)
@@ -148,11 +152,12 @@ namespace YD3D
 		commandList->IASetIndexBuffer(&mIndexBuffer.IndexView());
 
 		commandList->SetGraphicsRootDescriptorTable(0, LatLongTexhandle);
-		commandList->SetGraphicsRootConstantBufferView(1, mCbBuffer.GetGpuAddress());
+		commandList->SetGraphicsRootConstantBufferView(1, mCbBuffer.GetElemGpuAddress(mCurMatrixIndex));
 		commandList->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTarget->Resource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET));
 		commandList->ClearRenderTargetView(rtHandle, DirectX::Colors::LightBlue, 0, nullptr);
+		//commandList->ClearDepthStencilView((D3D12_CPU_DESCRIPTOR_HANDLE)0, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0, 0, 0, nullptr);
 		commandList->DrawIndexedInstanced(mPreIndexCount, 1, 0, 0, 0);
 		commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTarget->Resource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COMMON));
 

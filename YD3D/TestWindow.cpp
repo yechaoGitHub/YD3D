@@ -122,7 +122,7 @@ void TestWindow::InitScence()
 	mLatLongResource.Create(mDxFactory.Device(), mLatlongImage.Width(), mLatlongImage.Height());
 
 	LatLongToCubeMap CubeMapHelper;
-	CubeMapHelper.GenerateCubeMap(_D3D12DEVICE_, mLatlongImage, 1024, 1024);
+	CubeMapHelper.GenerateCubeMap(_D3D12DEVICE_, mLatlongImage, 1024, 1024, L"./t.png");
 
 
 

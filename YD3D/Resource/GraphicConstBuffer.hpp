@@ -24,18 +24,18 @@ namespace YD3D
 		bool Create(ID3D12Device* device, uint32_t count)
 		{
 			mElementCount = count;
-			mElementByteSize = sizeof(T);CalcConstantBufferByteSize(sizeof(T));
+			mElementByteSize = CalcConstantBufferByteSize(sizeof(T));
 			return GraphicUploadBuffer::Create(device, mElementByteSize * mElementCount);
 		}
 
 		bool Update(uint32_t elementIndex, const T& data)
 		{
-			return CopyData(elementIndex * mElementByteSize, reinterpret_cast<const BYTE*>(&data), mElementByteSize);;
+			return CopyData(elementIndex * mElementByteSize, reinterpret_cast<const BYTE*>(&data), sizeof(T));;
 		}
 
-		D3D12_GPU_VIRTUAL_ADDRESS GetElemGpuAddress(int elementIndex) const
+		D3D12_GPU_VIRTUAL_ADDRESS GetElemGpuAddress(uint32_t elementIndex) const
 		{
-			return Resource()->GetGPUVirtualAddress() + elementIndex * mElementByteSize;
+			return Resource()->GetGPUVirtualAddress() + (elementIndex * mElementByteSize);
 		}
 
 		uint32_t ElemCount() 

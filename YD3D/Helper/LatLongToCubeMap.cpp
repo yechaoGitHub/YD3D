@@ -2,6 +2,10 @@
 #include "Graph/GraphicTask.h"
 #include "Helper/UploadHelper.h"
 #include "Graph/DescriptorHeapManager.h"
+#include "shlwapi.h"
+#include "pathcch.h"
+
+#pragma comment(lib, "shlwapi.lib") 
 
 namespace YD3D
 {
@@ -16,7 +20,7 @@ namespace YD3D
 	{
 	}
 
-	bool LatLongToCubeMap::GenerateCubeMap(ID3D12Device* device, const WICImage& latLongImage, uint32_t width, uint32_t height)
+	bool LatLongToCubeMap::GenerateCubeMap(ID3D12Device* device, const WICImage& latLongImage, uint32_t width, uint32_t height, const std::wstring& savePath)
 	{
 		mDevice = device;
 		SetUp(latLongImage, width, height);
@@ -27,13 +31,24 @@ namespace YD3D
 
 		uint64_t rtSize = mRendetTarget.GetResByteSize();
 		D3D12_PLACED_SUBRESOURCE_FOOTPRINT footPrint = GetResourceCopyableFootPrint(mRendetTarget.Resource(), 0);
+
+		wchar_t pathBuffer[MAX_PATH] = {};
+		::memcpy(pathBuffer, savePath.c_str(), savePath.size() * sizeof(wchar_t));
+		std::wstring ext = PathFindExtension(pathBuffer);
+		wchar_t* fileNameAddr = PathFindFileName(pathBuffer);
+		PathRemoveExtension(fileNameAddr);
+		std::wstring fileName = fileNameAddr;
+		PathStripToRoot(pathBuffer);
+		std::wstring path = pathBuffer;
+
 		uint8_t *data = mReadbackBuffer.Map(0, nullptr);
-
-		mImage[0].LoadFromMemory(footPrint.Footprint.Width, footPrint.Footprint.Height, footPrint.Footprint.RowPitch, data);
-		mImage[0].SaveFile(L"./t.png");
-
+		for (uint32_t i = 0; i < 6; i++) 
+		{
+			mImage[i].LoadFromMemory(footPrint.Footprint.Width, footPrint.Footprint.Height, footPrint.Footprint.RowPitch, data);
+			mImage[i].SaveFile(path + fileName + static_cast<wchar_t>(L'1' + i) + ext);
+			data += Align(rtSize, 512);
+		}
 		mReadbackBuffer.Unmap(0, nullptr);
-
 
 		ClearUp();
 		return true;
@@ -100,13 +115,14 @@ namespace YD3D
 		CD3DX12_TEXTURE_COPY_LOCATION readbackSrc(rtResource, 0);
 		D3D12_PLACED_SUBRESOURCE_FOOTPRINT &&footPrint = GetResourceCopyableFootPrint(mRendetTarget.Resource(), 0);
 		uint64_t rtSize = mRendetTarget.GetResByteSize();
-		CD3DX12_TEXTURE_COPY_LOCATION readbackDest(mReadbackBuffer.Resource(), footPrint);
+		
 
 		for (uint32_t i = ERIGHT; i <= EFRONT; i++)
 		{
-			mPass.SetViewProjIndex(static_cast<ECubeCameraDirection>(0));
+			mPass.SetViewProjIndex(static_cast<ECubeCameraDirection>(i));
 			mPass.PopulateCommandList(&mLatLongTexture, &mRendetTarget, commandList);
 
+			CD3DX12_TEXTURE_COPY_LOCATION readbackDest(mReadbackBuffer.Resource(), footPrint);
 			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(rtResource, D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_SOURCE));
 			commandList->CopyTextureRegion(&readbackDest, 0, 0, 0, &readbackSrc, nullptr);
 			commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(rtResource, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_COMMON));
