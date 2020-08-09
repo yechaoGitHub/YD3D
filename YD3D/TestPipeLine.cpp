@@ -1,5 +1,6 @@
 #include "TestPipeLine.h"
 #include "Graph/DescriptorHeapManager.h"
+#include "Util/CommonVertexIndexBuffer.h"
 
 using namespace YD3D;
 
@@ -17,6 +18,7 @@ bool TestPipeLine::Create(ID3D12Device* device, const YD3D::PipeLineInitParam* p
 {
 	mPass.Create(device);
 	mDepthPass.Create(device);
+	mLatLongPass.Create(device);
 	Super::Create(device, pipeLineInitParam);
 
 	return true;
@@ -32,15 +34,13 @@ bool TestPipeLine::SetScene(Scene* scene)
 
 bool TestPipeLine::Draw(TestResourcePackage *package)
 {
-	uint64_t feneValue(0);
-
 	package->State.set_state(EResourcePackageState::ERENDERING);
 	
 	ResetCommand();
 	PopulateCommandList(package, mCommandList.Get());
 	mCommandList->Close();
 
-	GraphicTask::GlobalGraphicTask()->GetCommandQueue(ECommandQueueType::ESWAP_CHAIN).PostCommandList(1, mCommandList.GetAddressOf(), &feneValue);
+	uint64_t feneValue = GraphicTask::GlobalGraphicTask()->GetCommandQueue(ECommandQueueType::ESWAP_CHAIN).PostCommandList(1, mCommandList.GetAddressOf());
 	GraphicTask::WaitForGraphicTaskCompletion(ECommandQueueType::ESWAP_CHAIN, feneValue, false);
 
 	package->State.set_state(EResourcePackageState::ERENDERED);
@@ -48,14 +48,17 @@ bool TestPipeLine::Draw(TestResourcePackage *package)
 	return true;
 }
 
-
 bool TestPipeLine::PopulateCommandList(TestResourcePackage* package, ID3D12GraphicsCommandList* commandList)
 {
-	PopulateBeginPipeLine(package, commandList);
-	mPass.PopulateCommandList(package, commandList);
+	//PopulateBeginPipeLine(package, commandList);
+	//mPass.PopulateCommandList(package, commandList);
 	//mDepthPass.PopulateCommandList(&package->DepthItem, commandList);
 
-	PopulateEndPipeLine(package, commandList);
+	mLatLongPass.SetSize(1024, 1024);
+	mLatLongPass.SetViewProjIndex(ELEFT);
+	mLatLongPass.PopulateCommandList(&package->LatlongItem, commandList);
+
+	//PopulateEndPipeLine(package, commandList);
 
 	return true;
 }
@@ -63,7 +66,9 @@ bool TestPipeLine::PopulateCommandList(TestResourcePackage* package, ID3D12Graph
 bool TestPipeLine::PopulateCommandListGC(gc_ptr<TestResourcePackage> package, ID3D12GraphicsCommandList* commandList)
 {
 	PopulateBeginPipeLine(package.get_raw_ptr(), commandList);
-	mPass.PopulateCommandList(package.get_raw_ptr(), commandList);
+	//mPass.PopulateCommandList(package.get_raw_ptr(), commandList);
+	//.SetSize(1024, 1024);
+	//mLatLongPass.SetViewProjIndex(EFRONT);
 	PopulateEndPipeLine(package.get_raw_ptr(), commandList);
 
 	return true;
@@ -76,7 +81,7 @@ bool TestPipeLine::PopulateBeginPipeLine(TestResourcePackage* package, ID3D12Gra
 
 	commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(package->RT->Resource(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
-	commandList->ClearRenderTargetView(package->RtHandle, DirectX::Colors::Brown, 0, nullptr);
+	commandList->ClearRenderTargetView(package->RtHandle, DirectX::Colors::LightBlue, 0, nullptr);
 	commandList->ClearDepthStencilView(package->DsHandle, D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.f, 0, 0, nullptr);
 
 	commandList->IASetVertexBuffers(0, 1, &mScene->VertexView());

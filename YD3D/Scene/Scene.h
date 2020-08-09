@@ -103,7 +103,7 @@ namespace YD3D
 		gc_ptr<GraphicConstBuffer<LightDataStruct>>		mGpuLightInfo;
 		ystate<ESceneState>								mState;
 
-		bool GraphicTaskUploadVertexIndexData(ID3D12GraphicsCommandList *commandList);
+		void GraphicTaskUploadVertexIndexData(ID3D12GraphicsCommandList *commandList);
 	};
 };
 

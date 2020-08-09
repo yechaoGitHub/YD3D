@@ -10,7 +10,7 @@ namespace YD3D
 		~GraphicIndexBuffer();
 
 		bool Create(ID3D12Device* device, uint64_t length, DXGI_FORMAT format);
-		const D3D12_INDEX_BUFFER_VIEW& IndexView();
+		const D3D12_INDEX_BUFFER_VIEW& IndexView() const;
 		uint64_t BufferLength();
 		void Release() override;
 

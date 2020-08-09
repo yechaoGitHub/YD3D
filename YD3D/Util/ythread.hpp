@@ -1,4 +1,6 @@
-#include "YD3D_Header.h"
+#pragma once
+#include <thread>
+#include <functional>
 
 template<typename TReturn = void>
 class ythread

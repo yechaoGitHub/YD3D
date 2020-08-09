@@ -9,6 +9,7 @@
 #include "Scene/Model.h"
 #include "TestPipeLine.h"
 #include "Helper/WICImage.h"
+#include "PipeLine/LatLongToCubeMapPass.h"
 
 class TestWindow : public YD3D::YWindow
 {
@@ -23,13 +24,10 @@ public:
 	uint32_t Run() override;
 
 protected:
-//	LRESULT MainWndProc(UINT msg, WPARAM wParam, LPARAM lParam) override;
-
 	void OnMouseMove(YD3D::EMouseKey btnState, uint32_t x, uint32_t y) override;
 	void OnMouseUp(YD3D::EMouseKey btnState, uint32_t x, uint32_t y) override;
 	void OnMouseDown(YD3D::EMouseKey btnState, uint32_t x, uint32_t y) override;
-	//void OnKeyUp(YD3D::VirtualKey key, YD3D::VirtualKeyState keyState) override;
-
+	
 private:
 	YD3D::DxFactory					mDxFactory;
 	YD3D::GraphicTask				mGraphTask;
@@ -50,7 +48,8 @@ private:
 	gc_ptr<YD3D::GraphicDepthStencil>	mDs;
 	POINT								mLastMousePos;
 	YD3D::WICImage						mImages[4];
-	
+	YD3D::WICImage						mLatlongImage;
+	YD3D::GraphicTexture				mLatLongResource;
 
 	void InitD3D();
 	void InitScence();

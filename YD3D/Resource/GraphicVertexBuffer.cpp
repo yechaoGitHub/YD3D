@@ -48,7 +48,7 @@ namespace YD3D
 		mVertexBuffer = {};
 	}
 
-	const D3D12_VERTEX_BUFFER_VIEW& GraphicVertexBuffer::VertexView()
+	const D3D12_VERTEX_BUFFER_VIEW& GraphicVertexBuffer::VertexView() const
 	{
 		return mVertexBuffer;
 	}

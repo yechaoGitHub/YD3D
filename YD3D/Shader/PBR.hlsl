@@ -90,3 +90,25 @@ float3 CalculatePointLight(LightDataStruct light, float3 worldPos, float3 worldN
     
     return DirectPBR(lightIntensity, light.Color, worldNor, viewVec, lightVec, roughness, metalness, albedo, ao);
 }
+
+float3 GammaCorrection(float3 color, float gamma)
+{
+    return pow(color, float3(1.0 / gamma, 1.0 / gamma, 1.0 / gamma));
+}
+
+float3 ColorLinear(float3 color, float gamma)
+{
+    return pow(color, float3(gamma, gamma, gamma));
+}
+
+float3 ACESToneMapping(float3 color, float adapted_lum)
+{
+    const float A = 2.51f;
+    const float B = 0.03f;
+    const float C = 2.43f;
+    const float D = 0.59f;
+    const float E = 0.14f;
+
+    color *= adapted_lum;
+    return (color * (A * color + B)) / (color * (C * color + D) + E);
+}

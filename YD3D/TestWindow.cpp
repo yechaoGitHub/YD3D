@@ -1,5 +1,8 @@
 #include "TestWindow.h"
 #include "Helper/GeometricMeshFactory.h"
+#include "Util/CommonVertexIndexBuffer.h"
+#include "Helper/LatLongToCubeMap.h"
+#include "Helper/UploadHelper.h"
 
 using namespace YD3D;
 using namespace DirectX;
@@ -102,6 +105,9 @@ void TestWindow::InitD3D()
 	initParam.outputWidth = GetWidth();
 	initParam.outputHeight = GetHeight();
 	assert(mPipeLine.Create(mDxFactory.Device(), &initParam));
+
+	CommonVertexIndexBuffer::Initialize(mDxFactory.Device());
+	UploadHelper::Initialize(mDxFactory.Device());
 }
 
 void TestWindow::InitScence()
@@ -112,6 +118,17 @@ void TestWindow::InitScence()
 	mImages[EMETALLIC].OpenImageFile(L"DemoResource/rustediron2_metallic.png");
 	mImages[ENORMAL].OpenImageFile(L"DemoResource/rustediron2_normal.png");
 	mImages[EROUGHNESS].OpenImageFile(L"DemoResource/rustediron2_roughness.png");
+	mLatlongImage.OpenImageFile(L"DemoResource/Ice_Lake_HiRes_TMap.jpg");
+	mLatLongResource.Create(mDxFactory.Device(), mLatlongImage.Width(), mLatlongImage.Height());
+
+	LatLongToCubeMap CubeMapHelper;
+	CubeMapHelper.GenerateCubeMap(_D3D12DEVICE_, mLatlongImage, 1024, 1024, L"./t.png");
+
+
+
+	UploadHelper::UploadTexture(&mLatLongResource, 0, mLatlongImage.Data(), mLatlongImage.Size());
+
+	DescriptorHeapManager::GobalDescriptorHeapManager()->BindSrView(ANY_DESCRIPTOR_HEAP_POS,  &mLatLongResource, nullptr);
 
 	gc_ptr<Model> model;
 	model.assign(new Model);
@@ -125,8 +142,7 @@ void TestWindow::InitScence()
 
 	model->UpdateTexture(mImages, 4);
 
-	uint64_t fenceValue(0);
-	GraphicTask::PostGraphicTask(ECommandQueueType::ECOPY, [model](ID3D12GraphicsCommandList* commandList) mutable {model->UpdateGraphicResource(commandList); return true; }, &fenceValue);
+	uint64_t fenceValue = GraphicTask::PostGraphicTask(ECommandQueueType::ECOPY, [model](ID3D12GraphicsCommandList* commandList) mutable {model->UpdateGraphicResource(commandList); });
 	GraphicTask::WaitForGraphicTaskCompletion(ECommandQueueType::ECOPY, fenceValue);
 
 	GraphicResource* arrGpuRes[] = {
@@ -159,6 +175,8 @@ void TestWindow::InitResource()
 	mPackage->State.set_state(EResourcePackageState::EINIT);
 	mPackage->State.bind_callback(std::bind(&TestWindow::ResourcePackageCallback, this, std::placeholders::_1, std::placeholders::_2));
 
+	mPackage->LatlongItem.LatLongTexture = &mLatLongResource;
+
 	mPipeLine.SetScene(mScene.get_raw_ptr());
 	mPipeLine.PostResourcePackage(mPackage.get_raw_ptr());
 }
@@ -174,6 +192,7 @@ void TestWindow::ResourcePackageCallback(YD3D::EResourcePackageState beforeState
 		mPackage->RtHandle = rtHandle;
 		mPackage->DepthItem.RT = gcRt;
 		mPackage->DepthItem.RtHandle = rtHandle;
+		mPackage->LatlongItem.RenderTarget = gcRt.get_raw_ptr();
 		Update();
 	}
 	else if (afterState == YD3D::EResourcePackageState::ERENDERED) 

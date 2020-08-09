@@ -13,6 +13,7 @@
 #include <array>
 #include <set>
 #include <unordered_map>
+#include <functional>
 #include <atomic>
 #include <mutex>
 #include <condition_variable>

@@ -4,7 +4,8 @@
 namespace YD3D
 {
 	GraphicResource::GraphicResource() :
-		mResource(nullptr)
+		mResource(nullptr),
+		mVecGcDescriptor(get_gc_allocator<gc_ptr<DescriptorHeap>>())
 	{
 	}
 
@@ -13,7 +14,6 @@ namespace YD3D
 		if (mResource) 
 		{
 			Release();
-			
 		}
 	}
 
@@ -29,6 +29,15 @@ namespace YD3D
 		assert(mResource);
 		mResource->Release();
 		mResource = nullptr;
+
+		for (auto &vecDescHeapHandle : mBindDescriptor)
+		{
+			for (auto &handle : vecDescHeapHandle)
+			{
+				handle.DescriptorHeap->RemoveView(this);
+			}
+			vecDescHeapHandle.clear();
+		}
 	}
 
 	ID3D12Resource* GraphicResource::Resource() const
@@ -113,11 +122,11 @@ namespace YD3D
 		//mResource->GetPrivateData(WKPDID_D3DDebugObjectNameW, &bufferLength, (void*)name);
 	}
 
-	void* GraphicResource::Map(uint32_t subResources, const D3D12_RANGE* range)
+	uint8_t* GraphicResource::Map(uint32_t subResources, const D3D12_RANGE* range)
 	{
 		assert(mResource);
-		void* mapAddress(nullptr);
-		ThrowIfFailed(mResource->Map(subResources, range, &mapAddress));
+		uint8_t* mapAddress(nullptr);
+		ThrowIfFailed(mResource->Map(subResources, range, reinterpret_cast<void**>(&mapAddress)));
 		return mapAddress;
 	}
 
@@ -129,18 +138,48 @@ namespace YD3D
 
 	D3D12_CPU_DESCRIPTOR_HANDLE GraphicResource::GetCpuDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t index)
 	{
-		return mBindDescriptor[type][index].mCpuHandle;
+		return mBindDescriptor[type][index].CpuHandle;
 	}
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GraphicResource::GetGpuDescriptorHandle(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t index)
 	{
-		return mBindDescriptor[type][index].mGpuHandle;
+		return mBindDescriptor[type][index].GpuHandle;
+	}
+
+	GraphicResource::operator bool()
+	{
+		return mResource;
 	}
 
 	void GraphicResource::InsertBindDescriptor(const DescriptorHandle& descriptorHandle)
 	{
-		DescriptorHandle &memDesc = mBindDescriptor[descriptorHandle.mType].emplace_back(descriptorHandle);
-		get_gc_ptr_from_raw(this).add_member_ptr(memDesc.mDescriptorHeap);
+		mBindDescriptor[descriptorHandle.Type].push_back(descriptorHandle);
+
+		if (is_gc_managed(descriptorHandle.DescriptorHeap)) 
+		{
+			mVecGcDescriptor.push_back(get_gc_ptr_from_raw(descriptorHandle.DescriptorHeap));
+		}
+	}
+
+	void GraphicResource::ClearDescriptorHeap(DescriptorHeap* heap)
+	{
+		D3D12_DESCRIPTOR_HEAP_TYPE type = heap->GetType();
+
+		auto it = mBindDescriptor[type].begin();
+		while (it != mBindDescriptor[type].end())
+		{
+			DescriptorHandle& handle = *it;
+			if (handle.DescriptorHeap == heap)
+			{
+				it = mBindDescriptor[type].erase(it);
+			}
+			else 
+			{
+				it++;
+			}
+		}
+
+		
 	}
 };
 
