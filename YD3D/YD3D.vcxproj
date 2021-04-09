@@ -155,8 +155,12 @@
     <ClCompile Include="Graph\GraphicTask.cpp" />
     <ClCompile Include="Graph\SwapChain.cpp" />
     <ClCompile Include="Helper\GeometricMeshFactory.cpp" />
+    <ClCompile Include="Helper\LatLongToCubeMap.cpp" />
+    <ClCompile Include="Helper\ReadbackHelper.cpp" />
+    <ClCompile Include="Helper\UploadHelper.cpp" />
     <ClCompile Include="Helper\WICImage.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PipeLine\LatLongToCubeMapPass.cpp" />
     <ClCompile Include="PipeLine\ResourcePackage.cpp" />
     <ClCompile Include="Resource\GraphicDepthStencil.cpp" />
     <ClCompile Include="Resource\GraphicIndexBuffer.cpp" />
@@ -169,9 +173,11 @@
     <ClCompile Include="Scene\Camera.cpp" />
     <ClCompile Include="Scene\Model.cpp" />
     <ClCompile Include="Scene\Scene.cpp" />
+    <ClCompile Include="SkyBoxPass.cpp" />
     <ClCompile Include="TestPass.cpp" />
     <ClCompile Include="TestPipeLine.cpp" />
     <ClCompile Include="TestWindow.cpp" />
+    <ClCompile Include="Util\CommonVertexIndexBuffer.cpp" />
     <ClCompile Include="Util\Timer.cpp" />
     <ClCompile Include="Util\YD3D_Util.cpp" />
     <ClCompile Include="Window\YWindow.cpp" />
@@ -218,7 +224,11 @@
     <ClInclude Include="Graph\GraphicTask.h" />
     <ClInclude Include="Graph\SwapChain.h" />
     <ClInclude Include="Helper\GeometricMeshFactory.h" />
+    <ClInclude Include="Helper\LatLongToCubeMap.h" />
+    <ClInclude Include="Helper\ReadbackHelper.h" />
+    <ClInclude Include="Helper\UploadHelper.h" />
     <ClInclude Include="Helper\WICImage.h" />
+    <ClInclude Include="PipeLine\LatLongToCubeMapPass.h" />
     <ClInclude Include="PipeLine\PassTemplate.hpp" />
     <ClInclude Include="PipeLine\PipeLineTemplate.hpp" />
     <ClInclude Include="PipeLine\ResourcePackage.h" />
@@ -236,9 +246,11 @@
     <ClInclude Include="Scene\Light.h" />
     <ClInclude Include="Scene\Model.h" />
     <ClInclude Include="Scene\Scene.h" />
+    <ClInclude Include="SkyBoxPass.h" />
     <ClInclude Include="TestPass.h" />
     <ClInclude Include="TestPipeLine.h" />
     <ClInclude Include="TestWindow.h" />
+    <ClInclude Include="Util\CommonVertexIndexBuffer.h" />
     <ClInclude Include="Util\Timer.h" />
     <ClInclude Include="Util\wait_free_queue.hpp" />
     <ClInclude Include="Util\YD3D_Define.h" />
@@ -251,7 +263,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\DirectXTK12\Inc\SimpleMath.inl" />
-    <None Include="Shader\Common.hlsli" />
+    <None Include="Shader\Common.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shader\CommonVs.hlsl">
@@ -261,6 +275,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shader\DepthPassVs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shader\LatLongToCubeMapPs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="Shader\LatLongToCubeMapVs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="Shader\PBR.hlsl">

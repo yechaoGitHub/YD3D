@@ -136,10 +136,72 @@ namespace YD3D
             anisotropicWrap, anisotropicClamp };
     }
 
+    inline const std::array<Vertex, 4>& GetFullScreenVertex()
+    {
+        static std::array<Vertex, 4> FullScreenVertex =
+        {
+            Vertex(-1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0), 
+            Vertex(+1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+            Vertex(-1.0, +1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+            Vertex(+1.0, +1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0),
+        };
+
+        return FullScreenVertex;
+    }
+
+    inline const std::array<uint32_t, 6>& GetFullScreenIndex() 
+    {
+        static std::array<uint32_t, 6> FullScreenIndex =
+        {
+            0, 3, 1,
+            0, 2, 3,
+        };
+
+        return FullScreenIndex;
+    }
+
+    inline const D3D12_GRAPHICS_PIPELINE_STATE_DESC& GetDefaultPSODesc() 
+    {
+        static D3D12_GRAPHICS_PIPELINE_STATE_DESC desc = 
+        {
+            nullptr,
+            D3D12_SHADER_BYTECODE{nullptr, 0},
+            D3D12_SHADER_BYTECODE{nullptr, 0},
+            D3D12_SHADER_BYTECODE{nullptr, 0},
+            D3D12_SHADER_BYTECODE{nullptr, 0},
+            D3D12_SHADER_BYTECODE{nullptr, 0},
+            D3D12_STREAM_OUTPUT_DESC{},
+            CD3DX12_BLEND_DESC(D3D12_DEFAULT),
+            UINT_MAX,
+            CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT),
+            CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT),
+            D3D12_INPUT_LAYOUT_DESC{ GetCommonInputLayout().data(), static_cast<UINT>(GetCommonInputLayout().size()) },
+            D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED,
+            D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE,
+            1,
+            { DXGI_FORMAT_R8G8B8A8_UNORM },
+            DXGI_FORMAT_D24_UNORM_S8_UINT,
+            DXGI_SAMPLE_DESC { 1, 0 },
+            0,
+            D3D12_CACHED_PIPELINE_STATE{ nullptr, 0},
+            D3D12_PIPELINE_STATE_FLAG_NONE
+        };
+      
+        return desc;
+    }
+
+    D3D12_PLACED_SUBRESOURCE_FOOTPRINT GetResourceCopyableFootPrint(ID3D12Resource *res, uint32_t subresourceIndex);
+
     Microsoft::WRL::ComPtr<ID3DBlob> CompileShader(
         const std::wstring& filename,
         const D3D_SHADER_MACRO* defines,
         const std::string& entrypoint,
         const std::string& target);
+
+
+	inline uint64_t Align(uint64_t num, uint64_t alignNum) 
+	{
+		return ((num + alignNum - 1) / alignNum) * alignNum;
+	}
 
 };

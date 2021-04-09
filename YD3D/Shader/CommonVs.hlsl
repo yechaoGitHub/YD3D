@@ -10,8 +10,9 @@ VertexOut main(VertexIn Vin)
     Vout.Normal = mul(Model, float4(Vin.Normal, 0.0f));
     Vout.Tangent = mul(Model, float4(Vin.Tangant, 0.0f));
     Vout.Color = Vin.Color;
-    Vout.TexCoord = Vin.TexCoord; //mul(Model, float4(Vin.TexCoord, 0, 1.0f));
+    Vout.TexCoord = Vin.TexCoord;
     Vout.svPosition = mul(ViewProj, WorldPos);
+ 
     
     return Vout;
 }

@@ -1,15 +1,16 @@
 #pragma once
 #include "PipeLine/PipeLineTemplate.hpp"
 #include "PipeLine/ResourcePackage.h"
+#include "PipeLine/LatLongToCubeMapPass.h"
 #include "TestPass.h"
 #include "DepthPass.h"
 
 class TestPipeLine;
 
-
 struct TestResourcePackage : public YD3D::ResourcePackage
 {
 	DepthPassRenderItem DepthItem;
+	YD3D::LatLongToCubeMapRenderItem LatlongItem;
 };
 
 class TestPipeLine : public YD3D::PipeLineTemplate<TestResourcePackage, YD3D::PipeLineInitParam>
@@ -32,6 +33,8 @@ protected:
 
 	TestPass	mPass;
 	DepthPass	mDepthPass;
+
+	YD3D::LatLongToCubeMapPass mLatLongPass;
 
 };
 

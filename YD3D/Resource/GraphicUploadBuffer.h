@@ -10,7 +10,7 @@ namespace YD3D
 		~GraphicUploadBuffer();
 		
 		bool Create(ID3D12Device* device, uint64_t length, bool autoMapped = true);
-		bool CopyData(uint64_t Offset, const BYTE* data, uint64_t lenght);
+		bool CopyData(uint64_t Offset, const uint8_t* data, uint64_t lenght);
 		uint8_t* GetMappedPointer();
 
 	private:

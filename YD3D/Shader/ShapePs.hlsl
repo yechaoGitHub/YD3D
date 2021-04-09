@@ -15,12 +15,11 @@ float3 CalculateTBN(VertexOut vout, float3 bumpMapNor)
     return newNormal;
 }
 
-
 float4 main(VertexOut Vout) : SV_Target
 {
     float3 lightOut = float3(0, 0, 0);
     
-    float3 albedo = ModelTextures[MODEL_ALBEDO_INDEX].Sample(gsamLinearClamp, Vout.TexCoord);
+    float3 albedo = ColorLinear(ModelTextures[MODEL_ALBEDO_INDEX].Sample(gsamLinearClamp, Vout.TexCoord), 2.2);
     float3 metallic = ModelTextures[MODEL_METALLIC_INDEX].Sample(gsamLinearClamp, Vout.TexCoord);
     float3 normal = ModelTextures[MODEL_NORMAL_INDEX].Sample(gsamLinearClamp, Vout.TexCoord);
     float3 roughness = ModelTextures[MODEL_ROUGHNESS_INDEX].Sample(gsamLinearClamp, Vout.TexCoord);
@@ -30,5 +29,5 @@ float4 main(VertexOut Vout) : SV_Target
         lightOut += CalculatePointLight(LightData[i], Vout.WorldPosition, CalculateTBN(Vout, normal), CameraPos, roughness, metallic, albedo, 1);
     }
     
-    return float4(lightOut, 1.0f);
+    return float4(GammaCorrection(lightOut, 2.2), 1.0f);
 }

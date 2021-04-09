@@ -6,7 +6,10 @@ namespace YD3D
 {
 	class DescriptorHeap : public enable_gc_ptr_form_raw
 	{
+		using VecGcResource = std::vector<gc_ptr<GraphicResource>, gc_allocator<gc_ptr<GraphicResource>>>;
 		friend class DescriptorHeapManager;
+		friend class GraphicResource;
+
 	public:
 		enum { need_clear_up_gc_ptr = 1 };
 
@@ -37,8 +40,9 @@ namespace YD3D
 		ID3D12DescriptorHeap*									mDescriptorHeap;
 		uint32_t												mDescriptorCount;
 		uint32_t												mIncreasement;
-		std::unordered_map<uint32_t, gc_ptr<GraphicResource>>	mMapSlot;
+		std::unordered_map<uint32_t, GraphicResource*>			mMapSlot;
 		std::unordered_map<GraphicResource*, uint32_t>			mMapResource;
+		VecGcResource											mGcResource;
 
 		void SetSlot(uint32_t index, GraphicResource* res);
 	};

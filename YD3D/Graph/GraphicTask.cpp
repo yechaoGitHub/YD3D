@@ -28,7 +28,7 @@ namespace YD3D
 		return true;
 	}
 
-	bool GraphicTask::PostTask(ECommandQueueType type, GraphicTaskFunction&& task, uint64_t* fenceValue)
+	uint64_t GraphicTask::PostTask(ECommandQueueType type, GraphicTaskFunction&& task)
 	{
 		TaskCallbackParam param;
 		ID3D12GraphicsCommandList* commandList = AllocateCommandList(type);
@@ -40,10 +40,10 @@ namespace YD3D
 		param.CommandList = commandList;
 		param.HasCallback = false;
 
-		return GetCommandQueue(type).PostCommandList(1, &commandList, fenceValue, std::bind(&GraphicTask::GraphicTaskDefaultCallback, this, std::move(param), std::placeholders::_1, std::placeholders::_2));
+		return GetCommandQueue(type).PostCommandList(1, &commandList, std::bind(&GraphicTask::GraphicTaskDefaultCallback, this, std::move(param), std::placeholders::_1, std::placeholders::_2));
 	}
 
-	bool GraphicTask::PostTask(ECommandQueueType type, GraphicTaskFunction&& task, uint64_t* fenceValue, GraphicTaskCallbackFunction&& callback)
+	uint64_t GraphicTask::PostTask(ECommandQueueType type, GraphicTaskFunction&& task, GraphicTaskCallbackFunction&& callback)
 	{
 		TaskCallbackParam param;
 		ID3D12GraphicsCommandList* commandList = AllocateCommandList(type);
@@ -56,7 +56,7 @@ namespace YD3D
 		param.HasCallback = true;
 		param.Callback = std::move(callback);
 
-		return GetCommandQueue(type).PostCommandList(1, &commandList, fenceValue, std::bind(&GraphicTask::GraphicTaskDefaultCallback, this, std::move(param), std::placeholders::_1, std::placeholders::_2));
+		return GetCommandQueue(type).PostCommandList(1, &commandList, std::bind(&GraphicTask::GraphicTaskDefaultCallback, this, std::move(param), std::placeholders::_1, std::placeholders::_2));
 	}
 
 	CommandQueue& GraphicTask::GetCommandQueue(ECommandQueueType type)
@@ -102,14 +102,14 @@ namespace YD3D
 		return _GLOBAL_GRAPHIC_TASK_->GetCommandQueue(type);
 	}
 
-	bool GraphicTask::PostGraphicTask(ECommandQueueType type, GraphicTaskFunction &&task, uint64_t* fenceValue)
+	uint64_t GraphicTask::PostGraphicTask(ECommandQueueType type, GraphicTaskFunction &&task)
 	{
-		return _GLOBAL_GRAPHIC_TASK_->PostTask(type, std::move(task), fenceValue);
+		return _GLOBAL_GRAPHIC_TASK_->PostTask(type, std::move(task));
 	}
 
-	bool GraphicTask::PostGraphicTask(ECommandQueueType type, GraphicTaskFunction&& task, uint64_t* fenceValue, GraphicTaskCallbackFunction&& callback)
+	uint64_t GraphicTask::PostGraphicTask(ECommandQueueType type, GraphicTaskFunction&& task, GraphicTaskCallbackFunction&& callback)
 	{
-		return _GLOBAL_GRAPHIC_TASK_->PostTask(type, std::move(task), fenceValue, std::move(callback));
+		return _GLOBAL_GRAPHIC_TASK_->PostTask(type, std::move(task), std::move(callback));
 	}
 
 	bool GraphicTask::WaitForGraphicTaskCompletion(ECommandQueueType type, uint64_t fenceValue, bool waitCallback)
